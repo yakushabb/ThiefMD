@@ -1216,7 +1216,10 @@ namespace ThiefMD.Controllers.FileManager {
                     if (text_buffer.length != 0) {
                         File dest_file = File.new_for_path (Path.build_filename (destination_path, dest_file_name));
                         try {
-                            save_file (dest_file, text_buffer.data);
+                            // Rewrite "assets/" image paths to flat paths since assets live
+                            // right next to the .md (same pattern as import_textpack).
+                            string markdown = ((string) text_buffer.data).replace ("assets/", "");
+                            save_file (dest_file, markdown.data);
                         } catch (Error e) {
                             warning ("Could not save note from bear2bk: %s", e.message);
                         }

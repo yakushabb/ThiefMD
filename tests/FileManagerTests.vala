@@ -105,7 +105,8 @@ public class FileManagerTests {
             string script =
                 "import zipfile\n" +
                 "z = zipfile.ZipFile('" + archive_path + "', 'w')\n" +
-                "z.writestr('My First Note.textbundle/text.md', '# Hello World\\n\\nTest note.\\n')\n" +
+                // Note references the asset via assets/ prefix (as Bear.app exports it)
+                "z.writestr('My First Note.textbundle/text.md', '# Hello World\\n\\n![img](assets/image.png)\\n')\n" +
                 "z.writestr('My First Note.textbundle/assets/image.png', 'PNG')\n" +
                 "z.writestr('Another Note.textbundle/text.md', '# Another Note\\n')\n" +
                 "z.close()\n";
@@ -145,8 +146,12 @@ public class FileManagerTests {
             string note1 = FileManager.get_file_contents (Path.build_filename (dest, "My First Note.md"));
             assert (note1.contains ("Hello World"));
 
-            // The asset from the first note should be extracted
+            // The asset from the first note should be extracted flat (no assets/ subfolder)
             assert (FileUtils.test (Path.build_filename (dest, "image.png"), FileTest.EXISTS));
+
+            // The markdown image path should be rewritten from "assets/image.png" to "image.png"
+            assert (!note1.contains ("assets/"));
+            assert (note1.contains ("image.png"));
         });
     }
 }
