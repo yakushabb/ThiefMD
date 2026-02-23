@@ -83,6 +83,22 @@ namespace ThiefMD.Controllers.FileImporter {
         }
     }
 
+    private uint8[] read_archive_entry_bytes (Archive.Read archive) {
+        ByteArray byte_buffer = new ByteArray ();
+
+        while (true) {
+            uint8[] chunk = new uint8[16384];
+            ssize_t bytes_read = archive.read_data (chunk);
+            if (bytes_read <= 0) {
+                break;
+            }
+
+            byte_buffer.append (chunk[0:(int) bytes_read]);
+        }
+
+        return byte_buffer.data;
+    }
+
     private string normalize_archive_relative_path (string path) {
         if (path == null) {
             return "";
@@ -278,7 +294,7 @@ namespace ThiefMD.Controllers.FileImporter {
         }
 
         try {
-            debug ("Looking for: %s", string.joinv (", ", files.to_array ()));
+            debug ("Looking for requested files in archive");
             var archive = new Archive.Read ();
             throw_on_failure (archive.support_filter_all ());
             throw_on_failure (archive.support_format_all ());
@@ -295,16 +311,7 @@ namespace ThiefMD.Controllers.FileImporter {
                         continue;
                     }
 
-                    uint8[] buffer = null;
-                    Array<uint8> bin_buffer = new Array<uint8> ();
-                    Posix.off_t offset;
-                    while (archive.read_data_block (out buffer, out offset) == Archive.Result.OK) {
-                        if (buffer == null) {
-                            break;
-                        }
-
-                        bin_buffer.append_vals (buffer, buffer.length);
-                    }
+                    uint8[] bin_buffer = read_archive_entry_bytes (archive);
 
                     if (bin_buffer.length != 0) {
                         File dest_file = File.new_for_path (Path.build_filename (dest.get_path (), extraction_path));
@@ -314,7 +321,7 @@ namespace ThiefMD.Controllers.FileImporter {
                             if (!dest_parent.query_exists ()) {
                                 dest_parent.make_directory_with_parents ();
                             }
-                            FileManager.save_file (dest_file, bin_buffer.data);
+                            FileManager.save_file (dest_file, bin_buffer);
                         }
                     }
                 } else {
@@ -374,22 +381,14 @@ namespace ThiefMD.Controllers.FileImporter {
                         !entry_path.has_suffix ("/");
 
                     if (is_text || is_asset || is_info) {
-                        uint8[] buffer = null;
-                        Array<uint8> bin_buffer = new Array<uint8> ();
-                        Posix.off_t offset;
-                        while (archive.read_data_block (out buffer, out offset) == Archive.Result.OK) {
-                            if (buffer == null) {
-                                break;
-                            }
-                            bin_buffer.append_vals (buffer, buffer.length);
-                        }
+                        uint8[] bin_buffer = read_archive_entry_bytes (archive);
 
                         if (bin_buffer.length != 0) {
                             if (is_text) {
                                 text_entry_path = entry_path;
-                                text_data = bin_buffer.data;
+                                text_data = bin_buffer;
                             } else if (is_info) {
-                                uint8[] info_data = bin_buffer.data;
+                                uint8[] info_data = bin_buffer;
                                 if (info_data[info_data.length - 1] != 0) {
                                     info_data += 0;
                                 }
@@ -407,7 +406,7 @@ namespace ThiefMD.Controllers.FileImporter {
                                     if (dest_parent != null && !dest_parent.query_exists ()) {
                                         dest_parent.make_directory_with_parents ();
                                     }
-                                    FileManager.save_file (dest_file, bin_buffer.data);
+                                    FileManager.save_file (dest_file, bin_buffer);
                                 } catch (Error e) {
                                     warning ("Could not save extracted file: %s", e.message);
                                 }
@@ -491,20 +490,12 @@ namespace ThiefMD.Controllers.FileImporter {
                     }
                     string dest_file_name = note_name + ".md";
 
-                    uint8[] buffer = null;
-                    Array<uint8> text_buffer = new Array<uint8> ();
-                    Posix.off_t offset;
-                    while (archive.read_data_block (out buffer, out offset) == Archive.Result.OK) {
-                        if (buffer == null) {
-                            break;
-                        }
-                        text_buffer.append_vals (buffer, buffer.length);
-                    }
+                    uint8[] text_buffer = read_archive_entry_bytes (archive);
 
                     if (text_buffer.length != 0) {
                         File dest_file = File.new_for_path (Path.build_filename (destination_path, dest_file_name));
                         try {
-                            FileManager.save_file (dest_file, text_buffer.data);
+                            FileManager.save_file (dest_file, text_buffer);
                         } catch (Error e) {
                             warning ("Could not save note from bear2bk: %s", e.message);
                         }
@@ -517,15 +508,7 @@ namespace ThiefMD.Controllers.FileImporter {
                         continue;
                     }
 
-                    uint8[] buffer = null;
-                    Array<uint8> asset_buffer = new Array<uint8> ();
-                    Posix.off_t offset;
-                    while (archive.read_data_block (out buffer, out offset) == Archive.Result.OK) {
-                        if (buffer == null) {
-                            break;
-                        }
-                        asset_buffer.append_vals (buffer, buffer.length);
-                    }
+                    uint8[] asset_buffer = read_archive_entry_bytes (archive);
 
                     if (asset_buffer.length != 0) {
                         string safe_asset_name = normalize_archive_relative_path (asset_name);
@@ -535,7 +518,7 @@ namespace ThiefMD.Controllers.FileImporter {
                             if (dest_parent_dir != null && !dest_parent_dir.query_exists ()) {
                                 dest_parent_dir.make_directory_with_parents ();
                             }
-                            FileManager.save_file (dest_file, asset_buffer.data);
+                            FileManager.save_file (dest_file, asset_buffer);
                         } catch (Error e) {
                             warning ("Could not save asset from bear2bk: %s", e.message);
                         }
