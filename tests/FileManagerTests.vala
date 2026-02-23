@@ -223,6 +223,12 @@ public class FileManagerTests {
             assert (FileManager.textpack_import_extension ("text.markdown", "movie.highland") == ".fountain");
             assert (FileManager.textpack_import_extension ("text.md", "movie.highland") == ".fountain");
 
+            // TextBundle info.json type can also mark screenplay content as fountain.
+            assert (FileManager.textpack_import_extension ("text.markdown", "movie.textpack", "io.fountain.screenplay") == ".fountain");
+            assert (FileManager.textpack_import_extension ("text.md", "movie.textpack", "io.fountain.screenplay") == ".fountain");
+            assert (FileManager.textpack_import_extension ("text.markdown", "movie.textpack", "com.quoteunquoteapps.fountain") == ".fountain");
+            assert (FileManager.textpack_import_extension ("text.md", "movie.textpack", "com.quoteunquoteapps.fountain") == ".fountain");
+
             // Regular textpack markdown stays markdown.
             assert (FileManager.textpack_import_extension ("text.markdown", "notes.textpack") == ".md");
             assert (FileManager.textpack_import_extension ("text.md", "notes.textpack") == ".md");

@@ -142,11 +142,22 @@ namespace ThiefMD.Controllers.FileManager {
         return value;
     }
 
-    internal string textpack_import_extension (string entry_path, string archive_path) {
+    internal string textpack_import_extension (string entry_path, string archive_path, string textbundle_type = "") {
         string lowered_entry = entry_path.down ();
         string lowered_archive = archive_path.down ();
+        string lowered_type = textbundle_type.down ();
+        string type_suffix = lowered_type;
+        int type_dot = lowered_type.last_index_of (".");
+        if (type_dot >= 0 && type_dot < lowered_type.length - 1) {
+            type_suffix = lowered_type.substring (type_dot + 1);
+        }
 
         if (lowered_entry == "text.fountain" || lowered_entry == "text.fou") {
+            return ".fountain";
+        }
+
+        if ((type_suffix == "fountain" || lowered_type == "io.fountain.screenplay") &&
+            (lowered_entry == "text.md" || lowered_entry == "text.markdown")) {
             return ".fountain";
         }
 
@@ -165,6 +176,21 @@ namespace ThiefMD.Controllers.FileManager {
         }
 
         return ".md";
+    }
+
+    private string textpack_type_from_info_json (string info_json) {
+        try {
+            Regex type_matcher = new Regex ("\"type\"\\s*:\\s*\"([^\"]+)\"", RegexCompileFlags.CASELESS, 0);
+            MatchInfo matches;
+            if (type_matcher.match (info_json, RegexMatchFlags.NOTEMPTY, out matches)) {
+                string bundle_type = matches.fetch (1);
+                return (bundle_type != null) ? bundle_type : "";
+            }
+        } catch (Error e) {
+            warning ("Could not parse textpack info.json type: %s", e.message);
+        }
+
+        return "";
     }
 
     private string normalize_archive_relative_path (string value) {
@@ -1151,6 +1177,10 @@ namespace ThiefMD.Controllers.FileManager {
                 throw_on_failure (archive.support_format_all ());
                 throw_on_failure (archive.open_filename (textpack_file.get_path (), 10240));
 
+                uint8[]? text_data = null;
+                string text_entry_path = "";
+                string textbundle_type = "";
+
                 unowned Archive.Entry entry;
                 while (archive.next_header (out entry) == Archive.Result.OK) {
                     string entry_path = entry.pathname ();
@@ -1171,11 +1201,13 @@ namespace ThiefMD.Controllers.FileManager {
                         entry_path == "text.fountain" ||
                         entry_path == "text.fou");
 
+                    bool is_info = (entry_path == "info.json");
+
                     // Assets keep their assets/ path inside the destination folder
                     bool is_asset = entry_path.has_prefix ("assets/") &&
                         !entry_path.has_suffix ("/");
 
-                    if (is_text || is_asset) {
+                    if (is_text || is_asset || is_info) {
                         uint8[] buffer = null;
                         Array<uint8> bin_buffer = new Array<uint8> ();
                         Posix.off_t offset;
@@ -1187,10 +1219,15 @@ namespace ThiefMD.Controllers.FileManager {
                         }
 
                         if (bin_buffer.length != 0) {
-                            string dest_path;
                             if (is_text) {
-                                string ext = textpack_import_extension (entry_path, textpack_path);
-                                dest_path = Path.build_filename (parent.get_sheets_path (), bundle_name + ext);
+                                text_entry_path = entry_path;
+                                text_data = bin_buffer.data;
+                            } else if (is_info) {
+                                uint8[] info_data = bin_buffer.data;
+                                if (info_data[info_data.length - 1] != 0) {
+                                    info_data += 0;
+                                }
+                                textbundle_type = textpack_type_from_info_json ((string) info_data);
                             } else {
                                 // Keep assets in assets/ so markdown references stay valid
                                 if (!is_safe_archive_relative_path (entry_path)) {
@@ -1198,22 +1235,36 @@ namespace ThiefMD.Controllers.FileManager {
                                     continue;
                                 }
                                 string safe_asset_path = normalize_archive_relative_path (entry_path);
-                                dest_path = Path.build_filename (parent.get_sheets_path (), safe_asset_path);
-                            }
-
-                            File dest_file = File.new_for_path (dest_path);
-                            File dest_parent = dest_file.get_parent ();
-                            try {
-                                if (dest_parent != null && !dest_parent.query_exists ()) {
-                                    dest_parent.make_directory_with_parents ();
+                                string dest_path = Path.build_filename (parent.get_sheets_path (), safe_asset_path);
+                                File dest_file = File.new_for_path (dest_path);
+                                File dest_parent = dest_file.get_parent ();
+                                try {
+                                    if (dest_parent != null && !dest_parent.query_exists ()) {
+                                        dest_parent.make_directory_with_parents ();
+                                    }
+                                    save_file (dest_file, bin_buffer.data);
+                                } catch (Error e) {
+                                    warning ("Could not save extracted file: %s", e.message);
                                 }
-                                save_file (dest_file, bin_buffer.data);
-                            } catch (Error e) {
-                                warning ("Could not save extracted file: %s", e.message);
                             }
                         }
                     } else {
                         archive.read_data_skip ();
+                    }
+                }
+
+                if (text_data != null && text_entry_path != "") {
+                    string ext = textpack_import_extension (text_entry_path, textpack_path, textbundle_type);
+                    string dest_path = Path.build_filename (parent.get_sheets_path (), bundle_name + ext);
+                    File dest_file = File.new_for_path (dest_path);
+                    File dest_parent = dest_file.get_parent ();
+                    try {
+                        if (dest_parent != null && !dest_parent.query_exists ()) {
+                            dest_parent.make_directory_with_parents ();
+                        }
+                        save_file (dest_file, text_data);
+                    } catch (Error e) {
+                        warning ("Could not save extracted file: %s", e.message);
                     }
                 }
 
