@@ -142,6 +142,40 @@ namespace ThiefMD.Controllers.FileManager {
         return value;
     }
 
+    private string normalize_archive_relative_path (string value) {
+        string normalized = value.replace ("\\", "/").chug ().chomp ();
+        while (normalized.has_prefix ("./")) {
+            normalized = normalized.substring (2);
+        }
+        return normalized;
+    }
+
+    private bool is_safe_archive_relative_path (string value, bool allow_subdirs = true) {
+        string normalized = normalize_archive_relative_path (value);
+
+        if (normalized == "" || normalized.has_prefix ("/") || normalized.has_suffix ("/")) {
+            return false;
+        }
+
+        // Reject Windows absolute paths/drives and URI-like entries.
+        if (normalized.contains (":") || normalized.has_prefix ("~")) {
+            return false;
+        }
+
+        string[] parts = normalized.split ("/");
+        foreach (string part in parts) {
+            if (part == "" || part == "." || part == "..") {
+                return false;
+            }
+        }
+
+        if (!allow_subdirs && normalized.contains ("/")) {
+            return false;
+        }
+
+        return true;
+    }
+
     private bool path_matches (
         string needle,
         string hay,
@@ -205,6 +239,12 @@ namespace ThiefMD.Controllers.FileManager {
                 debug ("Found: %s", entry.pathname ());
                 string extraction_path = "";
                 if (list_contains(entry.pathname (), files, out extraction_path)) {
+                    if (!is_safe_archive_relative_path (extraction_path)) {
+                        debug ("Skipping unsafe extraction path: %s", extraction_path);
+                        archive.read_data_skip ();
+                        continue;
+                    }
+
                     uint8[] buffer = null;
                     Array<uint8> bin_buffer = new Array<uint8> ();
                     Posix.off_t offset;
@@ -1128,7 +1168,12 @@ namespace ThiefMD.Controllers.FileManager {
                                 dest_path = Path.build_filename (parent.get_sheets_path (), bundle_name + ext);
                             } else {
                                 // Keep assets in assets/ so markdown references stay valid
-                                dest_path = Path.build_filename (parent.get_sheets_path (), entry_path);
+                                if (!is_safe_archive_relative_path (entry_path)) {
+                                    debug ("Skipping unsafe textpack asset path: %s", entry_path);
+                                    continue;
+                                }
+                                string safe_asset_path = normalize_archive_relative_path (entry_path);
+                                dest_path = Path.build_filename (parent.get_sheets_path (), safe_asset_path);
                             }
 
                             File dest_file = File.new_for_path (dest_path);
@@ -1207,7 +1252,7 @@ namespace ThiefMD.Controllers.FileManager {
                     int last_sep = bundle_path.last_index_of ("/");
                     string note_name = (last_sep >= 0) ? bundle_path.substring (last_sep + 1) : bundle_path;
                     // Skip if the name is empty or tries to escape the destination
-                    if (note_name == "" || note_name.contains ("..") || note_name.contains ("/")) {
+                    if (note_name == "" || note_name.contains ("..") || note_name.contains ("/") || note_name.contains ("\\")) {
                         archive.read_data_skip ();
                         continue;
                     }
@@ -1236,8 +1281,7 @@ namespace ThiefMD.Controllers.FileManager {
                     int assets_start = pathname.index_of (".textbundle/assets/") + ".textbundle/assets/".length;
                     string asset_name = pathname.substring (assets_start);
                     // Skip directory entries and paths that could escape the destination
-                    if (asset_name == "" || asset_name.has_suffix ("/") ||
-                        asset_name.contains ("..") || asset_name.has_prefix ("/")) {
+                    if (!is_safe_archive_relative_path (asset_name)) {
                         archive.read_data_skip ();
                         continue;
                     }
@@ -1253,7 +1297,8 @@ namespace ThiefMD.Controllers.FileManager {
                     }
 
                     if (asset_buffer.length != 0) {
-                        File dest_file = File.new_for_path (Path.build_filename (destination_path, "assets", asset_name));
+                        string safe_asset_name = normalize_archive_relative_path (asset_name);
+                        File dest_file = File.new_for_path (Path.build_filename (destination_path, "assets", safe_asset_name));
                         File dest_parent_dir = dest_file.get_parent ();
                         try {
                             if (dest_parent_dir != null && !dest_parent_dir.query_exists ()) {

@@ -214,5 +214,100 @@ public class FileManagerTests {
             string broken = "assets/My%2Image.png";
             assert (FileManager.maybe_url_decode (broken) == broken);
         });
+
+        Test.add_func ("/thiefmd/bear2bk_blocks_path_traversal", () => {
+            string archive_path = Path.build_filename (
+                Environment.get_tmp_dir (),
+                "thiefmd-bear2bk-escape-test.bear2bk"
+            );
+            string dest = Path.build_filename (
+                Environment.get_tmp_dir (),
+                "thiefmd-bear2bk-escape-dest"
+            );
+            string outside_probe = Path.build_filename (Environment.get_tmp_dir (), "thiefmd-bear2bk-escape-probe.png");
+
+            if (FileUtils.test (outside_probe, FileTest.EXISTS)) {
+                FileUtils.unlink (outside_probe);
+            }
+
+            string script =
+                "import zipfile\n" +
+                "z = zipfile.ZipFile('" + archive_path + "', 'w')\n" +
+                "z.writestr('Safe Note.textbundle/text.md', '# Safe\\n')\n" +
+                "z.writestr('Safe Note.textbundle/assets/ok.png', 'OK')\n" +
+                "z.writestr('Safe Note.textbundle/assets/../../thiefmd-bear2bk-escape-probe.png', 'BAD')\n" +
+                "z.close()\n";
+
+            try {
+                string[] cmd = { "python3", "-c", script };
+                int status;
+                Process.spawn_sync (null, cmd, null, SpawnFlags.SEARCH_PATH, null, null, null, out status);
+            } catch (SpawnError e) {
+                warning ("Could not build traversal fixture, skipping: %s", e.message);
+                return;
+            }
+
+            File dest_dir = File.new_for_path (dest);
+            if (!dest_dir.query_exists ()) {
+                try {
+                    dest_dir.make_directory_with_parents ();
+                } catch (Error e) {
+                    assert_not_reached ();
+                }
+            }
+
+            FileManager.extract_bear2bk (archive_path, dest);
+
+            assert (FileUtils.test (Path.build_filename (dest, "Safe Note.md"), FileTest.EXISTS));
+            assert (FileUtils.test (Path.build_filename (dest, "assets", "ok.png"), FileTest.EXISTS));
+            assert (!FileUtils.test (outside_probe, FileTest.EXISTS));
+        });
+
+        Test.add_func ("/thiefmd/extract_files_blocks_path_traversal", () => {
+            string archive_path = Path.build_filename (
+                Environment.get_tmp_dir (),
+                "thiefmd-extract-escape-test.zip"
+            );
+            string dest = Path.build_filename (
+                Environment.get_tmp_dir (),
+                "thiefmd-extract-escape-dest"
+            );
+            string outside_probe = Path.build_filename (Environment.get_tmp_dir (), "thiefmd-extract-escape-probe.png");
+
+            if (FileUtils.test (outside_probe, FileTest.EXISTS)) {
+                FileUtils.unlink (outside_probe);
+            }
+
+            string script =
+                "import zipfile\n" +
+                "z = zipfile.ZipFile('" + archive_path + "', 'w')\n" +
+                "z.writestr('../../thiefmd-extract-escape-probe.png', 'BAD')\n" +
+                "z.close()\n";
+
+            try {
+                string[] cmd = { "python3", "-c", script };
+                int status;
+                Process.spawn_sync (null, cmd, null, SpawnFlags.SEARCH_PATH, null, null, null, out status);
+            } catch (SpawnError e) {
+                warning ("Could not build extract traversal fixture, skipping: %s", e.message);
+                return;
+            }
+
+            File dest_dir = File.new_for_path (dest);
+            if (!dest_dir.query_exists ()) {
+                try {
+                    dest_dir.make_directory_with_parents ();
+                } catch (Error e) {
+                    assert_not_reached ();
+                }
+            }
+
+            var files = new Gee.LinkedList<string> ();
+            files.add ("../../thiefmd-extract-escape-probe.png");
+
+            FileManager.extract_files_to_dest (archive_path, files, dest);
+
+            assert (!FileUtils.test (outside_probe, FileTest.EXISTS));
+        });
     }
 }
