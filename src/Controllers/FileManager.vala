@@ -27,7 +27,7 @@ namespace ThiefMD.Controllers.FileManager {
     // Shared info.json content for TextBundle-compliant archives
     private const string TEXTBUNDLE_INFO_JSON = """{"version":2,"type":"net.daringfireball.markdown","transient":false,"creatorURL":"https://thiefmd.com","creatorIdentifier":"com.github.kmwallio.thiefmd"}""";
     // info.json for fountain screenplay textpacks
-    private const string TEXTBUNDLE_FOUNTAIN_INFO_JSON = """{"version":2,"type":"io.fountain.screenplay","transient":false,"creatorURL":"https://thiefmd.com","creatorIdentifier":"com.github.kmwallio.thiefmd"}""";
+    private const string TEXTBUNDLE_FOUNTAIN_INFO_JSON = """{"version":2,"type":"com.quoteunquoteapps.fountain","transient":false,"creatorURL":"https://thiefmd.com","creatorIdentifier":"com.github.kmwallio.thiefmd"}""";
 
     public void import_file (string file_path, Sheets parent) {
         File import_f = File.new_for_path (file_path);
@@ -133,6 +133,34 @@ namespace ThiefMD.Controllers.FileManager {
         return resdown;
     }
 
+    internal string maybe_url_decode (string value) {
+        string? decoded = Uri.unescape_string (value, null);
+        if (decoded != null && decoded != "") {
+            return decoded;
+        }
+
+        return value;
+    }
+
+    private bool path_matches (
+        string needle,
+        string hay,
+        bool case_insensitive = true,
+        bool match_as_suffix = true)
+    {
+        if (hay == needle) {
+            return true;
+        } else if (case_insensitive && hay.down () == needle.down ()) {
+            return true;
+        } else if (match_as_suffix && needle.has_suffix (hay)) {
+            return true;
+        } else if (match_as_suffix && case_insensitive && needle.down ().has_suffix (hay.down ())) {
+            return true;
+        }
+
+        return false;
+    }
+
     private bool list_contains (
         string needle,
         Gee.List<string> haystack,
@@ -141,17 +169,14 @@ namespace ThiefMD.Controllers.FileManager {
         bool match_as_suffix = true)
     {
         place_file_at = "";
+        string decoded_needle = maybe_url_decode (needle);
         foreach (string hay in haystack) {
-            if (hay == needle) {
-                place_file_at = hay;
-                return true;
-            } else if (case_insensitive && hay.down() == needle.down ()) {
-                place_file_at = hay;
-                return true;
-            } else if (match_as_suffix && needle.has_suffix (hay)) {
-                place_file_at = hay;
-                return true;
-            } else if (match_as_suffix && case_insensitive && needle.down ().has_suffix (hay.down ())) {
+            string decoded_hay = maybe_url_decode (hay);
+
+            if (path_matches (needle, hay, case_insensitive, match_as_suffix) ||
+                path_matches (decoded_needle, hay, case_insensitive, match_as_suffix) ||
+                path_matches (needle, decoded_hay, case_insensitive, match_as_suffix) ||
+                path_matches (decoded_needle, decoded_hay, case_insensitive, match_as_suffix)) {
                 place_file_at = hay;
                 return true;
             }
@@ -1061,8 +1086,6 @@ namespace ThiefMD.Controllers.FileManager {
                 throw_on_failure (archive.support_format_all ());
                 throw_on_failure (archive.open_filename (textpack_file.get_path (), 10240));
 
-                string imported_text_path = "";
-
                 unowned Archive.Entry entry;
                 while (archive.next_header (out entry) == Archive.Result.OK) {
                     string entry_path = entry.pathname ();
@@ -1083,7 +1106,7 @@ namespace ThiefMD.Controllers.FileManager {
                         entry_path == "text.fountain" ||
                         entry_path == "text.fou");
 
-                    // Assets go in the same folder as the markdown file
+                    // Assets keep their assets/ path inside the destination folder
                     bool is_asset = entry_path.has_prefix ("assets/") &&
                         !entry_path.has_suffix ("/");
 
@@ -1103,15 +1126,17 @@ namespace ThiefMD.Controllers.FileManager {
                             if (is_text) {
                                 string ext = entry_path.substring (entry_path.last_index_of ("."));
                                 dest_path = Path.build_filename (parent.get_sheets_path (), bundle_name + ext);
-                                imported_text_path = dest_path;
                             } else {
-                                // Assets go right next to the markdown file, no subfolder
-                                string asset_name = Path.get_basename (entry_path);
-                                dest_path = Path.build_filename (parent.get_sheets_path (), asset_name);
+                                // Keep assets in assets/ so markdown references stay valid
+                                dest_path = Path.build_filename (parent.get_sheets_path (), entry_path);
                             }
 
                             File dest_file = File.new_for_path (dest_path);
+                            File dest_parent = dest_file.get_parent ();
                             try {
+                                if (dest_parent != null && !dest_parent.query_exists ()) {
+                                    dest_parent.make_directory_with_parents ();
+                                }
                                 save_file (dest_file, bin_buffer.data);
                             } catch (Error e) {
                                 warning ("Could not save extracted file: %s", e.message);
@@ -1122,21 +1147,6 @@ namespace ThiefMD.Controllers.FileManager {
                     }
                 }
 
-                // Rewrite "assets/" image paths to flat paths since assets live next to the .md.
-                // TextBundle-compliant tools only use "assets/" as a path prefix (not in prose),
-                // so a direct replace is safe here.
-                if (imported_text_path != "") {
-                    string markdown = get_file_contents (imported_text_path);
-                    string fixed = markdown.replace ("assets/", "");
-                    if (fixed != markdown) {
-                        File md_file = File.new_for_path (imported_text_path);
-                        try {
-                            save_file (md_file, fixed.data);
-                        } catch (Error e) {
-                            warning ("Could not update image paths: %s", e.message);
-                        }
-                    }
-                }
             } catch (Error e) {
                 warning ("Could not import textpack: %s", e.message);
             }
@@ -1170,7 +1180,7 @@ namespace ThiefMD.Controllers.FileManager {
     }
 
     // Extracts notes and assets from a bear2bk archive into a destination folder.
-    // Each note's text.md lands as <note name>.md; assets go alongside the notes.
+    // Each note's text.md lands as <note name>.md; assets are extracted under assets/.
     public void extract_bear2bk (string archive_path, string destination_path) {
         File arch_file = File.new_for_path (archive_path);
         if (!arch_file.query_exists ()) {
@@ -1216,10 +1226,7 @@ namespace ThiefMD.Controllers.FileManager {
                     if (text_buffer.length != 0) {
                         File dest_file = File.new_for_path (Path.build_filename (destination_path, dest_file_name));
                         try {
-                            // Rewrite "assets/" image paths to flat paths since assets live
-                            // right next to the .md (same pattern as import_textpack).
-                            string markdown = ((string) text_buffer.data).replace ("assets/", "");
-                            save_file (dest_file, markdown.data);
+                            save_file (dest_file, text_buffer.data);
                         } catch (Error e) {
                             warning ("Could not save note from bear2bk: %s", e.message);
                         }
@@ -1246,7 +1253,7 @@ namespace ThiefMD.Controllers.FileManager {
                     }
 
                     if (asset_buffer.length != 0) {
-                        File dest_file = File.new_for_path (Path.build_filename (destination_path, asset_name));
+                        File dest_file = File.new_for_path (Path.build_filename (destination_path, "assets", asset_name));
                         File dest_parent_dir = dest_file.get_parent ();
                         try {
                             if (dest_parent_dir != null && !dest_parent_dir.query_exists ()) {

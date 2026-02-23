@@ -146,12 +146,73 @@ public class FileManagerTests {
             string note1 = FileManager.get_file_contents (Path.build_filename (dest, "My First Note.md"));
             assert (note1.contains ("Hello World"));
 
-            // The asset from the first note should be extracted flat (no assets/ subfolder)
-            assert (FileUtils.test (Path.build_filename (dest, "image.png"), FileTest.EXISTS));
+            // The asset from the first note should be extracted under assets/
+            assert (FileUtils.test (Path.build_filename (dest, "assets", "image.png"), FileTest.EXISTS));
 
-            // The markdown image path should be rewritten from "assets/image.png" to "image.png"
-            assert (!note1.contains ("assets/"));
-            assert (note1.contains ("image.png"));
+            // The markdown image path should remain as "assets/image.png"
+            assert (note1.contains ("assets/image.png"));
+        });
+
+        Test.add_func ("/thiefmd/extract_files_url_decoded_match", () => {
+            string archive_path = Path.build_filename (
+                Environment.get_tmp_dir (),
+                "thiefmd-path-match-test.zip"
+            );
+            string dest = Path.build_filename (
+                Environment.get_tmp_dir (),
+                "thiefmd-path-match-dest"
+            );
+
+            string script =
+                "import zipfile\n" +
+                "z = zipfile.ZipFile('" + archive_path + "', 'w')\n" +
+                "z.writestr('word/media/My Image.png', 'PNG')\n" +
+                "z.close()\n";
+
+            try {
+                string[] cmd = { "python3", "-c", script };
+                int status;
+                Process.spawn_sync (null, cmd, null, SpawnFlags.SEARCH_PATH, null, null, null, out status);
+            } catch (SpawnError e) {
+                warning ("Could not build URL decode fixture, skipping: %s", e.message);
+                return;
+            }
+
+            if (!FileUtils.test (archive_path, FileTest.EXISTS)) {
+                warning ("URL decode fixture not created, skipping test");
+                return;
+            }
+
+            File dest_dir = File.new_for_path (dest);
+            if (!dest_dir.query_exists ()) {
+                try {
+                    dest_dir.make_directory_with_parents ();
+                } catch (Error e) {
+                    assert_not_reached ();
+                }
+            }
+
+            var files = new Gee.LinkedList<string> ();
+            // Markdown often carries URL-encoded paths.
+            files.add ("word/media/My%20Image.png");
+
+            FileManager.extract_files_to_dest (archive_path, files, dest);
+
+            // Keep extracted file path as requested path while matching decoded archive path.
+            assert (FileUtils.test (Path.build_filename (dest, "word", "media", "My%20Image.png"), FileTest.EXISTS));
+        });
+
+        Test.add_func ("/thiefmd/maybe_url_decode", () => {
+            string encoded = "assets/My%20Image%20(1).png";
+            string decoded = FileManager.maybe_url_decode (encoded);
+            assert (decoded == "assets/My Image (1).png");
+
+            string plain = "assets/image.png";
+            assert (FileManager.maybe_url_decode (plain) == plain);
+
+            // Invalid escapes should return the original input unchanged.
+            string broken = "assets/My%2Image.png";
+            assert (FileManager.maybe_url_decode (broken) == broken);
         });
     }
 }
