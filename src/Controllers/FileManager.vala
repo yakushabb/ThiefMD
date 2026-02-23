@@ -22,83 +22,9 @@ using ThiefMD.Widgets;
 
 namespace ThiefMD.Controllers.FileManager {
     public static bool disable_save = false;
-    // AE_IFREG from libarchive: regular file mode for archive entries
-    private const uint ARCHIVE_IFREG = 0100000;
-    // Shared info.json content for TextBundle-compliant archives
-    private const string TEXTBUNDLE_INFO_JSON = """{"version":2,"type":"net.daringfireball.markdown","transient":false,"creatorURL":"https://thiefmd.com","creatorIdentifier":"com.github.kmwallio.thiefmd"}""";
-    // info.json for fountain screenplay textpacks
-    private const string TEXTBUNDLE_FOUNTAIN_INFO_JSON = """{"version":2,"type":"io.fountain.screenplay","transient":false,"creatorURL":"https://thiefmd.com","creatorIdentifier":"com.github.kmwallio.thiefmd"}""";
 
     public void import_file (string file_path, Sheets parent) {
-        File import_f = File.new_for_path (file_path);
-        string ext = file_path.substring (file_path.last_index_of (".") + 1).down ();
-        string match_ext = ext;
-        warning ("Importing (%s): %s", ext, import_f.get_path ());
-
-        // TextPack and Highland both use the TextBundle ZIP format
-        if (ext == "textpack" || ext == "highland") {
-            import_textpack (file_path, parent);
-            return;
-        }
-
-        // FDX (Final Draft) files get converted to Fountain on import
-        if (ext == "fdx") {
-            import_fdx (file_path, parent);
-            return;
-        }
-
-        if (match_ext.length >= 3) {
-            match_ext = "*." + match_ext + ";";
-        }
-
-        // Supported import file extensions
-        if (ThiefProperties.SUPPORTED_IMPORT_FILES.index_of (match_ext) >= 0) {
-            Gee.List<string> importSayings = new Gee.LinkedList<string> ();
-            importSayings.add(_("Stealing file contents..."));
-            importSayings.add(_("This isn't plagiarism, it's a remix!"));
-            importSayings.add(_("NYT Best Seller, here we come!"));
-
-            Thinking worker = new Thinking (_("Importing File"), () => {
-                string dest_name = import_f.get_basename ();
-                dest_name = dest_name.substring (0, dest_name.last_index_of ("."));
-                if (is_fountain (import_f.get_basename ())) {
-                    dest_name += ".fountain";
-                } else {
-                    dest_name += ".md";
-                }
-                debug ("Attempt to create: %s", dest_name);
-                string dest_path = Path.build_filename (parent.get_sheets_path (), dest_name);
-                if (can_open_file (import_f.get_basename ())) {
-                    File copy_to = File.new_for_path (dest_path);
-                    try {
-                        import_f.copy (copy_to, FileCopyFlags.NONE);
-                    } catch (Error e) {
-                        warning ("Could not add file to library: %s", e.message);
-                    }
-                } else if (Pandoc.make_md_from_file (dest_path, import_f.get_path ())) {
-                    if (ext == "docx" || ext == "odt" || ext == "epub" || ext == "fb2") {
-                        string new_markdown = get_file_contents (dest_path);
-                        Gee.LinkedList<string> files_to_find = Pandoc.file_import_paths (new_markdown);
-                        string formatted_markdown = strip_external_formatters (new_markdown);
-                        extract_files_to_dest (import_f.get_path (), files_to_find, parent.get_sheets_path ());
-                        if (formatted_markdown != "") {
-                            File write_twice = File.new_for_path (dest_path);
-                            try {
-                                save_file (write_twice, formatted_markdown.data);
-                            } catch (Error e) {
-                                warning ("Could not strip external formatting: %s", e.message);
-                            }
-                        }
-                    }
-                }
-            },
-            importSayings,
-            ThiefApp.get_instance ());
-            worker.run ();
-        }
-
-        parent.refresh ();
-        ThiefApp.get_instance ().library.refresh_dir (parent);
+        FileImporter.import_file (file_path, parent);
     }
 
     private string strip_external_formatters (string markdown) {
@@ -127,82 +53,53 @@ namespace ThiefMD.Controllers.FileManager {
         return resdown;
     }
 
-    private bool list_contains (
-        string needle,
-        Gee.List<string> haystack,
-        out string place_file_at,
-        bool case_insensitive = true,
-        bool match_as_suffix = true)
-    {
-        place_file_at = "";
-        foreach (string hay in haystack) {
-            if (hay == needle) {
-                place_file_at = hay;
-                return true;
-            } else if (case_insensitive && hay.down() == needle.down ()) {
-                place_file_at = hay;
-                return true;
-            } else if (match_as_suffix && needle.has_suffix (hay)) {
-                place_file_at = hay;
-                return true;
-            } else if (match_as_suffix && case_insensitive && needle.down ().has_suffix (hay.down ())) {
-                place_file_at = hay;
-                return true;
-            }
+    internal string maybe_url_decode (string value) {
+        string? decoded = Uri.unescape_string (value, null);
+        if (decoded != null && decoded != "") {
+            return decoded;
         }
 
-        return false;
+        return value;
+    }
+
+    internal string textpack_import_extension (string entry_path, string archive_path, string textbundle_type = "") {
+        string lowered_entry = entry_path.down ();
+        string lowered_archive = archive_path.down ();
+        string lowered_type = textbundle_type.down ();
+        string type_suffix = lowered_type;
+        int type_dot = lowered_type.last_index_of (".");
+        if (type_dot >= 0 && type_dot < lowered_type.length - 1) {
+            type_suffix = lowered_type.substring (type_dot + 1);
+        }
+
+        if (lowered_entry == "text.fountain" || lowered_entry == "text.fou") {
+            return ".fountain";
+        }
+
+        if ((type_suffix == "fountain" || lowered_type == "io.fountain.screenplay") &&
+            (lowered_entry == "text.md" || lowered_entry == "text.markdown")) {
+            return ".fountain";
+        }
+
+        if (lowered_archive.has_suffix (".highland") &&
+            (lowered_entry == "text.md" || lowered_entry == "text.markdown")) {
+            return ".fountain";
+        }
+
+        if (lowered_entry == "text.markdown") {
+            return ".md";
+        }
+
+        int dot_index = entry_path.last_index_of (".");
+        if (dot_index >= 0) {
+            return entry_path.substring (dot_index);
+        }
+
+        return ".md";
     }
 
     public void extract_files_to_dest (string archive_path, Gee.LinkedList<string> files, string destination_path) {
-        File arch_file = File.new_for_path (archive_path);
-        File dest = File.new_for_path (destination_path);
-        if (!arch_file.query_exists ()) {
-            return;
-        }
-
-        try {
-            debug ("Looking for: %s", string.joinv (", ", files.to_array ()));
-            var archive = new Archive.Read ();
-            throw_on_failure (archive.support_filter_all ());
-            throw_on_failure (archive.support_format_all ());
-            throw_on_failure (archive.open_filename (arch_file.get_path (), 10240));
-
-            unowned Archive.Entry entry;
-            while (archive.next_header (out entry) == Archive.Result.OK) {
-                // Extract theme into memory
-                debug ("Found: %s", entry.pathname ());
-                string extraction_path = "";
-                if (list_contains(entry.pathname (), files, out extraction_path)) {
-                    uint8[] buffer = null;
-                    Array<uint8> bin_buffer = new Array<uint8> ();
-                    Posix.off_t offset;
-                    while (archive.read_data_block (out buffer, out offset) == Archive.Result.OK) {
-                        if (buffer == null) {
-                            break;
-                        }
-
-                        bin_buffer.append_vals (buffer, buffer.length);
-                    }
-
-                    if (bin_buffer.length != 0) {
-                        File dest_file = File.new_for_path (Path.build_filename (dest.get_path (), extraction_path));
-                        File dest_parent = dest_file.get_parent ();
-                        debug ("Extracting: %s to %s", entry.pathname (), dest_file.get_path ());
-                        if (dest_parent != null) {
-                            if (!dest_parent.query_exists ()) {
-                                dest_parent.make_directory_with_parents ();
-                            }
-                            save_file (dest_file, bin_buffer.data);
-                        }
-                    }
-                } else {
-                    archive.read_data_skip ();
-                }
-            }
-        } catch (Error e) {
-            warning ("Error loading archive: %s", e.message);
-        }
+        FileImporter.extract_files_to_dest (archive_path, files, destination_path);
     }
 
     public void load_css_pkg (File css_pkg) {
@@ -385,185 +282,11 @@ namespace ThiefMD.Controllers.FileManager {
     }
 
     public int get_word_count_from_string (string text) {
-        int word_count = 0;
-        bool in_yaml = false;
-        bool in_code_block = false;
-        bool in_html_tag = false;
-        StringBuilder current_word = new StringBuilder ();
-        
-        string[] lines = text.split ("\n");
-        
-        foreach (string line in lines) {
-            // Skip YAML frontmatter
-            if (line == "---" || line == "+++") {
-                if (in_yaml) {
-                    in_yaml = false;
-                    continue;
-                } else if (word_count == 0) {
-                    in_yaml = true;
-                    continue;
-                }
-            }
-            
-            if (in_yaml) {
-                continue;
-            }
-            
-            // Skip code blocks
-            if (line.has_prefix ("```") || line.has_prefix ("~~~")) {
-                in_code_block = !in_code_block;
-                continue;
-            }
-            
-            if (in_code_block) {
-                continue;
-            }
-            
-            // Process line character by character for word counting (respect UTF-8 boundaries)
-            int index = 0;
-            unichar c = 0;
-            while (line.get_next_char (ref index, out c)) {
-                
-                // Skip HTML tags (simple detection)
-                if (c == '<') {
-                    in_html_tag = true;
-                    continue;
-                } else if (c == '>') {
-                    in_html_tag = false;
-                    continue;
-                }
-                
-                if (in_html_tag) {
-                    continue;
-                }
-                
-                // Skip markdown formatting characters
-                if (c == '*' || c == '#' || c == '_' || c == '`' || c == '>' || 
-                    c == '|' || c == '=' || c == '+' || c == '[' || c == ']' ||
-                    c == '(' || c == ')') {
-                    continue;
-                }
-                
-                // Word boundary detection
-                if (c.isspace () || c.ispunct ()) {
-                    if (current_word.len > 0) {
-                        word_count++;
-                        current_word.erase ();
-                    }
-                } else if (c.isalnum ()) {
-                    current_word.append_unichar (c);
-                }
-            }
-            
-            // Handle word at end of line
-            if (current_word.len > 0) {
-                word_count++;
-                current_word.erase ();
-            }
-        }
-        
-        return word_count;
+        return FileWordCount.get_word_count_from_string (text);
     }
 
     public int get_word_count (string file_path) {
-        DataInputStream? input = null;
-        try {
-            var file = File.new_for_path (file_path);
-            if (!file.query_exists ()) {
-                return 0;
-            }
-
-            input = new DataInputStream (file.read ());
-            int word_count = 0;
-            string? line;
-            bool in_yaml = false;
-            bool in_code_block = false;
-            bool in_html_tag = false;
-            StringBuilder current_word = new StringBuilder ();
-            
-            while ((line = input.read_line (null)) != null) {
-                // Skip YAML frontmatter
-                if (line == "---" || line == "+++") {
-                    if (in_yaml) {
-                        in_yaml = false;
-                        continue;
-                    } else if (word_count == 0) {
-                        in_yaml = true;
-                        continue;
-                    }
-                }
-                
-                if (in_yaml) {
-                    continue;
-                }
-                
-                // Skip code blocks
-                if (line.has_prefix ("```") || line.has_prefix ("~~~")) {
-                    in_code_block = !in_code_block;
-                    continue;
-                }
-                
-                if (in_code_block) {
-                    continue;
-                }
-                
-                // Process line character by character for word counting (respect UTF-8 boundaries)
-                int index = 0;
-                unichar c = 0;
-                while (line.get_next_char (ref index, out c)) {
-                    
-                    // Skip HTML tags (simple detection)
-                    if (c == '<') {
-                        in_html_tag = true;
-                        continue;
-                    } else if (c == '>') {
-                        in_html_tag = false;
-                        continue;
-                    }
-                    
-                    if (in_html_tag) {
-                        continue;
-                    }
-                    
-                    // Skip markdown formatting characters
-                    if (c == '*' || c == '#' || c == '_' || c == '`' || c == '>' || 
-                        c == '|' || c == '=' || c == '+' || c == '[' || c == ']' ||
-                        c == '(' || c == ')') {
-                        continue;
-                    }
-                    
-                    // Word boundary detection
-                    if (c.isspace () || c.ispunct ()) {
-                        if (current_word.len > 0) {
-                            word_count++;
-                            current_word.erase ();
-                        }
-                    } else if (c.isalnum ()) {
-                        current_word.append_unichar (c);
-                    }
-                }
-                
-                // Handle word at end of line
-                if (current_word.len > 0) {
-                    word_count++;
-                    current_word.erase ();
-                }
-            }
-            
-            return word_count;
-        } catch (Error e) {
-            warning ("Could not get word count for %s: %s", file_path, e.message);
-        } finally {
-            if (input != null) {
-                try {
-                    input.close ();
-                } catch (Error e) {
-                    warning ("Could not close word count stream: %s", e.message);
-                }
-            }
-        }
-
-        return 0;
+        return FileWordCount.get_word_count (file_path);
     }
 
     public bool get_parsed_markdown (string raw_mk, out string processed_mk) {
@@ -571,100 +294,7 @@ namespace ThiefMD.Controllers.FileManager {
     }
 
     public Gee.Map<string, string> get_yaml_kvp (string markdown) {
-        Gee.Map<string, string> kvps = new Gee.HashMap<string, string> ();
-        string buffer = markdown;
-
-        Regex headers = null;
-        try {
-            headers = new Regex ("^\\s*(.+?)\\s*[=:]\\s+(.*)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
-        } catch (Error e) {
-            warning ("Could not compile regex: %s", e.message);
-        }
-        
-        if (buffer.has_prefix ("---" + ThiefProperties.THIEF_MARK_CONST) || buffer.has_prefix ("+++" + ThiefProperties.THIEF_MARK_CONST)) {
-            buffer = buffer.replace (ThiefProperties.THIEF_MARK_CONST, "");
-        }
-
-        string buffer_prefix = (buffer.length > 4) ? buffer[0:4] : "";
-        if (buffer.length > 4 && (buffer_prefix == "---\n" || buffer_prefix == "+++\n")) {
-            int i = 0;
-            int last_newline = 3;
-            int next_newline;
-            bool valid_frontmatter = true;
-            string line = "";
-
-            while (valid_frontmatter) {
-                next_newline = buffer.index_of_char('\n', last_newline + 1);
-                if (next_newline == -1 && !((buffer.length > last_newline + 1) && (buffer.substring (last_newline + 1).has_prefix("---") || buffer.substring (last_newline + 1).has_prefix("+++")))) {
-                    valid_frontmatter = false;
-                    break;
-                }
-
-                if (next_newline == -1) {
-                    line = buffer.substring (last_newline + 1);
-                } else {
-                    line = buffer[last_newline+1:next_newline];
-                }
-                line = line.replace (ThiefProperties.THIEF_MARK_CONST, "");
-                last_newline = next_newline;
-
-                if (line == "---" || line == "+++") {
-                    break;
-                }
-
-                if (headers != null) {
-                    MatchInfo matches;
-                    if (headers.match (line, RegexMatchFlags.NOTEMPTY_ATSTART, out matches)) {
-                        string key = matches.fetch (1).chug ().chomp ();
-                        string value = matches.fetch (2).chug ().chomp ();
-                        if (value.has_prefix ("\"") && value.has_suffix ("\"")) {
-                            value = value.substring (1, value.length - 2);
-                        }
-
-                        if (!kvps.has_key (key)) {
-                            kvps.set (key, value);
-                        } else {
-                            if (key == matches.fetch (1)) {
-                                kvps.set (key, value);
-                            }
-                        }
-                    } else {
-                        // If it's a list or empty line, we're cool
-                        line = line.down ().chomp ();
-                        if (!line.has_prefix ("-") && line != "") {
-                            valid_frontmatter = false;
-                            break;
-                        }
-                    }
-                } else {
-                    string quick_parse = line.chomp ();
-                    int split = quick_parse.index_of (":") != -1 ? quick_parse.index_of (":") : quick_parse.index_of ("=");
-                    if (split != -1) {
-                        string match = quick_parse.substring (0, split);
-                        string key = quick_parse.substring (0, split).chug ().chomp ();
-                        string value = quick_parse.substring (split + 1).chug ().chomp ();
-                        if (value.has_prefix ("\"") && value.has_suffix ("\"")) {
-                            value = value.substring (1, value.length - 2);
-                        }
-                        if (!kvps.has_key (key)) {
-                            kvps.set (key, value);
-                        } else {
-                            if (key == match) {
-                                kvps.set (key, value);
-                            }
-                        }
-                    }
-                }
-
-                i++;
-            }
-
-            if (!valid_frontmatter) {
-                kvps = new Gee.HashMap<string, string> ();
-            }
-        }
-
-        return kvps;
+        return FileMetadata.get_yaml_kvp (markdown);
     }
 
     public string get_yamlless_markdown (
@@ -676,119 +306,8 @@ namespace ThiefMD.Controllers.FileManager {
         bool include_title = true,
         bool include_date = true)
     {
-        string buffer = markdown;
-        Regex headers = null;
-        try {
-            headers = new Regex ("^\\s*(.+?)\\s*[=:]\\s+(.*)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
-        } catch (Error e) {
-            warning ("Could not compile regex: %s", e.message);
-        }
-
-        string temp_title = "";
-        string temp_date = "";
-
-        MatchInfo matches;
-        var markout = new StringBuilder ();
-        int mklines = 0;
-
-        if (buffer.has_prefix ("---" + ThiefProperties.THIEF_MARK_CONST) || buffer.has_prefix ("+++" + ThiefProperties.THIEF_MARK_CONST)) {
-            buffer = buffer.replace (ThiefProperties.THIEF_MARK_CONST, "");
-        }
-
-        string buffer_prefix = (buffer.length > 4) ? buffer[0:4] : "";
-        if (buffer.length > 4 && ((buffer_prefix == "---\n") || (buffer_prefix == "+++\n"))) {
-            int i = 0;
-            int last_newline = 3;
-            int next_newline;
-            bool valid_frontmatter = true;
-            string line = "";
-
-            while (valid_frontmatter) {
-                next_newline = buffer.index_of_char('\n', last_newline + 1);
-                if (next_newline == -1 && !((buffer.length > last_newline + 1) && (buffer.substring (last_newline + 1).has_prefix("---") || buffer.substring (last_newline + 1).has_prefix("+++")))) {
-                    valid_frontmatter = false;
-                    break;
-                }
-
-                if (next_newline == -1) {
-                    line = buffer.substring (last_newline + 1);
-                } else {
-                    line = buffer[last_newline+1:next_newline];
-                }
-                line = line.replace (ThiefProperties.THIEF_MARK_CONST, "");
-                last_newline = next_newline;
-
-                if (line == "---" || line == "+++") {
-                    break;
-                }
-
-                if (headers != null) {
-                    if (headers.match (line, RegexMatchFlags.NOTEMPTY_ATSTART, out matches)) {
-                        if (matches.fetch (1).ascii_down() == "title") {
-                            temp_title = matches.fetch (2).chug ().chomp ();
-                            if (temp_title.has_prefix ("\"") && temp_title.has_suffix ("\"")) {
-                                temp_title = temp_title.substring (1, temp_title.length - 2);
-                            }
-                            if (include_title) {
-                                markout.append ("# " + temp_title + "\n");
-                                mklines++;
-                            }
-                        } else if (matches.fetch (1).ascii_down() == "date") {
-                            temp_date = matches.fetch (2).chug ().chomp ();
-                            if (include_date) {
-                                markout.append ("## " + temp_date + "\n");
-                                mklines++;
-                            }
-                        }
-                    } else {
-                        // If it's a list or empty line, we're cool
-                        line = line.down ().chomp ();
-                        if (!line.has_prefix ("-") && line != "") {
-                            valid_frontmatter = false;
-                            break;
-                        }
-                    }
-                } else {
-                    string quick_parse = line.chomp ();
-                    if (quick_parse.has_prefix ("title")) {
-                        temp_title = quick_parse.substring (quick_parse.index_of (":") + 1);
-                        if (temp_title.has_prefix ("\"") && temp_title.has_suffix ("\"")) {
-                            temp_title = temp_title.substring (1, temp_title.length - 2);
-                        }
-                        if (include_title) {
-                            markout.append ("# " + temp_title);
-                            mklines++;
-                        }
-                    } else if (quick_parse.has_prefix ("date")) {
-                        temp_date = quick_parse.substring (quick_parse.index_of (":") + 1).chug ().chomp ();
-                        if (include_date) {
-                            markout.append ("## " + temp_date);
-                            mklines++;
-                        }
-                    }
-                }
-
-                i++;
-            }
-
-            if (!valid_frontmatter) {
-                markout.erase ();
-                markout.append (markdown);
-            } else {
-                markout.append (buffer[last_newline:buffer.length]);
-            }
-        } else {
-            markout.append (markdown);
-        }
-
-        title = temp_title;
-        date = temp_date;
-
-        return markout.str;
+        return FileMetadata.get_yamlless_markdown (markdown, lines, out title, out date, non_empty, include_title, include_date);
     }
-
-    // Static regex to avoid recompilation on every call
-    private static Regex? yaml_headers_regex = null;
     
     public string get_file_lines_yaml (
         string file_path,
@@ -797,125 +316,7 @@ namespace ThiefMD.Controllers.FileManager {
         out string title,
         out string date)
     {
-        // var lock = new FileLock ();
-        var markdown = new StringBuilder ();
-        string temp_title = "";
-        string temp_date = "";
-        DataInputStream? input = null;
-
-        try {
-            // Compile regex once
-            if (yaml_headers_regex == null) {
-                yaml_headers_regex = new Regex ("^\\s*(.+?)\\s*[=:]\\s+(.+)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
-            }
-
-            var file = File.new_for_path (file_path);
-            if (!file.query_exists ()) {
-                warning ("File does not exist: %s", file_path);
-                title = temp_title;
-                date = temp_date;
-                return "";
-            }
-
-            debug ("Reading %s", file.get_path ());
-            input = new DataInputStream (file.read ());
-            int lines_read = 0;
-            string? line;
-            bool in_yaml = false;
-            bool first_line = true;
-
-            while ((line = input.read_line (null)) != null) {
-                // Early termination if we have enough lines
-                if (lines > 0 && lines_read >= lines) {
-                    break;
-                }
-
-                string trimmed = line.chomp ();
-                
-                // Skip empty lines if requested
-                if (non_empty_lines_only && trimmed == "") {
-                    continue;
-                }
-
-                // Handle YAML frontmatter delimiters
-                if (trimmed == "---" || trimmed == "+++") {
-                    if (in_yaml) {
-                        in_yaml = false;
-                        continue;
-                    } else if (lines_read == 0) {
-                        in_yaml = true;
-                        continue;
-                    }
-                }
-
-                if (!in_yaml) {
-                    // Regular markdown content
-                    if (temp_title == "" && line.has_prefix ("#")) {
-                        int space_idx = line.index_of (" ");
-                        if (space_idx != -1) {
-                            temp_title = line.substring (space_idx).chug ().chomp ();
-                        }
-                    }
-                    
-                    if (!first_line) {
-                        markdown.append_c ('\n');
-                    }
-                    markdown.append (trimmed);
-                    lines_read++;
-                    first_line = false;
-                } else {
-                    // Parse YAML frontmatter
-                    MatchInfo matches;
-                    if (yaml_headers_regex.match (trimmed, RegexMatchFlags.NOTEMPTY, out matches)) {
-                        string key = matches.fetch (1).chug ().chomp ().ascii_down ();
-                        string value = matches.fetch (2).chug ().chomp ();
-                        
-                        // Remove quotes
-                        if (value.has_prefix ("\"") && value.has_suffix ("\"") && value.length >= 2) {
-                            value = value.substring (1, value.length - 2);
-                        }
-                        
-                        if (key == "title") {
-                            temp_title = value;
-                            if (!first_line) {
-                                markdown.append_c ('\n');
-                            }
-                            markdown.append ("# ").append (temp_title);
-                            lines_read++;
-                            first_line = false;
-                        } else if (key.has_prefix ("date")) {
-                            temp_date = value;
-                            if (!first_line) {
-                                markdown.append_c ('\n');
-                            }
-                            markdown.append (temp_date);
-                            lines_read++;
-                            first_line = false;
-                        }
-                    }
-                }
-            }
-
-            if (lines_read == 1) {
-                markdown.append_c ('\n');
-            }
-
-        } catch (Error e) {
-            warning ("Error reading %s: %s", file_path, e.message);
-        } finally {
-            if (input != null) {
-                try {
-                    input.close ();
-                } catch (Error e) {
-                    warning ("Could not close file lines stream: %s", e.message);
-                }
-            }
-        }
-
-        title = temp_title;
-        date = temp_date;
-
-        return markdown.str;
+        return FileMetadata.get_file_lines_yaml (file_path, lines, non_empty_lines_only, out title, out date);
     }
 
     public bool add_ignore_folder (string directory_path)
@@ -1034,170 +435,25 @@ namespace ThiefMD.Controllers.FileManager {
     // Import a TextPack (.textpack) archive into a library folder.
     // TextBundle spec: https://textbundle.org/spec/
     public void import_textpack (string textpack_path, Sheets parent) {
-        File textpack_file = File.new_for_path (textpack_path);
-        if (!textpack_file.query_exists ()) {
-            return;
-        }
+        FileImporter.import_textpack (textpack_path, parent);
+    }
 
-        Gee.List<string> importSayings = new Gee.LinkedList<string> ();
-        importSayings.add (_("Unpacking your stories..."));
-        importSayings.add (_("Liberating your words!"));
-        importSayings.add (_("TextPack, meet ThiefMD!"));
+    // Imports notes from a Bear2bk backup file into a library folder.
+    // A .bear2bk is a zip containing one .textbundle per note, each with a text.md inside.
+    public void import_bear2bk (string archive_path, Sheets parent) {
+        FileImporter.import_bear2bk (archive_path, parent);
+    }
 
-        Thinking worker = new Thinking (_("Importing TextPack"), () => {
-            // Use the textpack file name (without extension) as the output file name
-            string bundle_name = textpack_file.get_basename ();
-            bundle_name = bundle_name.substring (0, bundle_name.last_index_of ("."));
-
-            try {
-                var archive = new Archive.Read ();
-                throw_on_failure (archive.support_filter_all ());
-                throw_on_failure (archive.support_format_all ());
-                throw_on_failure (archive.open_filename (textpack_file.get_path (), 10240));
-
-                string imported_text_path = "";
-
-                unowned Archive.Entry entry;
-                while (archive.next_header (out entry) == Archive.Result.OK) {
-                    string entry_path = entry.pathname ();
-
-                    // Strip a leading bundle folder prefix (e.g. "mybundle/text.md" -> "text.md"),
-                    // but keep the "assets/" prefix intact since that's part of the spec
-                    if (entry_path.contains ("/")) {
-                        string first_comp = entry_path.substring (0, entry_path.index_of ("/"));
-                        string rest = entry_path.substring (entry_path.index_of ("/") + 1);
-                        if (first_comp != "assets" && rest != "") {
-                            entry_path = rest;
-                        }
-                    }
-
-                    // Check for the main text file
-                    bool is_text = (entry_path == "text.md" ||
-                        entry_path == "text.markdown" ||
-                        entry_path == "text.fountain" ||
-                        entry_path == "text.fou");
-
-                    // Assets go in the same folder as the markdown file
-                    bool is_asset = entry_path.has_prefix ("assets/") &&
-                        !entry_path.has_suffix ("/");
-
-                    if (is_text || is_asset) {
-                        uint8[] buffer = null;
-                        Array<uint8> bin_buffer = new Array<uint8> ();
-                        Posix.off_t offset;
-                        while (archive.read_data_block (out buffer, out offset) == Archive.Result.OK) {
-                            if (buffer == null) {
-                                break;
-                            }
-                            bin_buffer.append_vals (buffer, buffer.length);
-                        }
-
-                        if (bin_buffer.length != 0) {
-                            string dest_path;
-                            if (is_text) {
-                                string ext = entry_path.substring (entry_path.last_index_of ("."));
-                                dest_path = Path.build_filename (parent.get_sheets_path (), bundle_name + ext);
-                                imported_text_path = dest_path;
-                            } else {
-                                // Assets go right next to the markdown file, no subfolder
-                                string asset_name = Path.get_basename (entry_path);
-                                dest_path = Path.build_filename (parent.get_sheets_path (), asset_name);
-                            }
-
-                            File dest_file = File.new_for_path (dest_path);
-                            try {
-                                save_file (dest_file, bin_buffer.data);
-                            } catch (Error e) {
-                                warning ("Could not save extracted file: %s", e.message);
-                            }
-                        }
-                    } else {
-                        archive.read_data_skip ();
-                    }
-                }
-
-                // Rewrite "assets/" image paths to flat paths since assets live next to the .md.
-                // TextBundle-compliant tools only use "assets/" as a path prefix (not in prose),
-                // so a direct replace is safe here.
-                if (imported_text_path != "") {
-                    string markdown = get_file_contents (imported_text_path);
-                    string fixed = markdown.replace ("assets/", "");
-                    if (fixed != markdown) {
-                        File md_file = File.new_for_path (imported_text_path);
-                        try {
-                            save_file (md_file, fixed.data);
-                        } catch (Error e) {
-                            warning ("Could not update image paths: %s", e.message);
-                        }
-                    }
-                }
-            } catch (Error e) {
-                warning ("Could not import textpack: %s", e.message);
-            }
-        }, importSayings, ThiefApp.get_instance ());
-
-        worker.run ();
-        parent.refresh ();
-        ThiefApp.get_instance ().library.refresh_dir (parent);
+    // Extracts notes and assets from a bear2bk archive into a destination folder.
+    // Each note's text.md lands as <note name>.md; assets are extracted under assets/.
+    public void extract_bear2bk (string archive_path, string destination_path) {
+        FileImporter.extract_bear2bk (archive_path, destination_path);
     }
 
     // Export a folder's markdown files as a TextPack (.textpack) archive.
     // TextBundle spec: https://textbundle.org/spec/
     public bool export_textpack (string folder_path, string textpack_path) {
-        try {
-            // Gather all markdown files from the folder, in order
-            var md_files = new Gee.LinkedList<string> ();
-            collect_exportable_files (folder_path, md_files);
-
-            // Combine all markdown into a single string
-            var combined = new StringBuilder ();
-            foreach (string file_path in md_files) {
-                string content = get_file_contents (file_path);
-                combined.append (content);
-                combined.append ("\n\n");
-            }
-            string markdown_content = combined.str;
-
-            // Find all local image files referenced by the markdown
-            Gee.Map<string, string> images = Pandoc.file_image_map (markdown_content, folder_path);
-
-            // Rewrite image references to use assets/ prefix inside the bundle
-            string textbundle_markdown = markdown_content;
-            foreach (var img_entry in images.entries) {
-                string asset_name = "assets/" + Path.get_basename (img_entry.value);
-                textbundle_markdown = textbundle_markdown.replace (img_entry.key, asset_name);
-            }
-
-            // Create the ZIP archive
-            var writer = new Archive.Write ();
-            if (writer.set_format_zip () != Archive.Result.OK) {
-                warning ("Could not set zip format for textpack");
-                return false;
-            }
-            if (writer.open_filename (textpack_path) != Archive.Result.OK) {
-                warning ("Could not open textpack for writing: %s", textpack_path);
-                return false;
-            }
-
-            // Add info.json
-            textpack_add_string (writer, "info.json", TEXTBUNDLE_INFO_JSON);
-
-            // Add text.md with the combined content
-            textpack_add_string (writer, "text.md", textbundle_markdown);
-
-            // Add asset files to the assets/ folder
-            foreach (var img_entry in images.entries) {
-                string abs_path = img_entry.value;
-                string asset_name = "assets/" + Path.get_basename (abs_path);
-                textpack_add_file (writer, asset_name, abs_path);
-            }
-
-            writer.close ();
-            return true;
-        } catch (Error e) {
-            warning ("Could not create textpack: %s", e.message);
-            return false;
-        }
+        return FileExporter.export_textpack (folder_path, textpack_path);
     }
 
     // Export a pre-built markdown string as a TextPack (.textpack) archive.
@@ -1205,151 +461,12 @@ namespace ThiefMD.Controllers.FileManager {
     // and rewrites image paths in the markdown to point to assets/<filename>.
     // Set is_fountain to true when the content is a Fountain screenplay.
     public bool export_textpack_from_markdown (string markdown_content, string textpack_path, string base_path = "", bool is_fountain = false) {
-        try {
-            // Find all local image/asset references in the markdown
-            Gee.Map<string, string> images = Pandoc.file_image_map (markdown_content, base_path);
-
-            // Rewrite image references to use assets/ prefix inside the bundle
-            string bundle_markdown = markdown_content;
-            foreach (var img_entry in images.entries) {
-                string asset_name = "assets/" + Path.get_basename (img_entry.value);
-                bundle_markdown = bundle_markdown.replace (img_entry.key, asset_name);
-            }
-
-            var writer = new Archive.Write ();
-            if (writer.set_format_zip () != Archive.Result.OK) {
-                warning ("Could not set zip format for textpack");
-                return false;
-            }
-            if (writer.open_filename (textpack_path) != Archive.Result.OK) {
-                warning ("Could not open textpack for writing: %s", textpack_path);
-                return false;
-            }
-
-            // Fountain scripts use a different info.json type and file name
-            if (is_fountain) {
-                textpack_add_string (writer, "info.json", TEXTBUNDLE_FOUNTAIN_INFO_JSON);
-                textpack_add_string (writer, "text.fountain", bundle_markdown);
-            } else {
-                textpack_add_string (writer, "info.json", TEXTBUNDLE_INFO_JSON);
-                textpack_add_string (writer, "text.md", bundle_markdown);
-            }
-
-            // Add each referenced image into the assets/ folder
-            foreach (var img_entry in images.entries) {
-                string asset_name = "assets/" + Path.get_basename (img_entry.value);
-                textpack_add_file (writer, asset_name, img_entry.value);
-            }
-
-            writer.close ();
-            return true;
-        } catch (Error e) {
-            warning ("Could not create textpack from markdown: %s", e.message);
-            return false;
-        }
-    }
-
-    // Recursively collect exportable markdown/fountain files from a folder, in order.
-    private void collect_exportable_files (string folder_path, Gee.LinkedList<string> files) {
-        try {
-            Dir dir = Dir.open (folder_path, 0);
-            string? name = null;
-            var file_list = new Gee.LinkedList<string> ();
-            var dir_list = new Gee.LinkedList<string> ();
-
-            while ((name = dir.read_name ()) != null) {
-                if (name.has_prefix (".")) {
-                    continue;
-                }
-                string full_path = Path.build_filename (folder_path, name);
-                if (FileUtils.test (full_path, FileTest.IS_DIR)) {
-                    dir_list.add (full_path);
-                } else if (exportable_file (name)) {
-                    file_list.add (full_path);
-                }
-            }
-
-            file_list.sort ((a, b) => a.collate (b));
-            foreach (string f in file_list) {
-                files.add (f);
-            }
-
-            dir_list.sort ((a, b) => a.collate (b));
-            foreach (string d in dir_list) {
-                collect_exportable_files (d, files);
-            }
-        } catch (Error e) {
-            warning ("Could not scan folder for export: %s", e.message);
-        }
-    }
-
-    // Write a string as a file entry inside a ZIP archive.
-    private void textpack_add_string (Archive.Write writer, string name, string data) {
-        var entry = new Archive.Entry ();
-        entry.set_pathname (name);
-        entry.set_size (data.length);
-        entry.set_filetype (ARCHIVE_IFREG);
-        entry.set_perm (0644);
-        writer.write_header (entry);
-        // Slice to data.length to skip the trailing null byte that Vala adds to string.data
-        writer.write_data (data.data[0:data.length]);
-    }
-
-    // Write a file from disk as an entry inside a ZIP archive.
-    private void textpack_add_file (Archive.Write writer, string archive_name, string file_path) {
-        try {
-            File f = File.new_for_path (file_path);
-            if (!f.query_exists ()) {
-                return;
-            }
-            uint8[] data;
-            f.load_contents (null, out data, null);
-
-            var entry = new Archive.Entry ();
-            entry.set_pathname (archive_name);
-            entry.set_size (data.length);
-            entry.set_filetype (ARCHIVE_IFREG);
-            entry.set_perm (0644);
-            writer.write_header (entry);
-            writer.write_data (data);
-        } catch (Error e) {
-            warning ("Could not add asset to textpack: %s", e.message);
-        }
+        return FileExporter.export_textpack_from_markdown (markdown_content, textpack_path, base_path, is_fountain);
     }
 
     // Import an FDX (Final Draft) file, converting it to Fountain format.
     public void import_fdx (string fdx_path, Sheets parent) {
-        File fdx_file = File.new_for_path (fdx_path);
-        if (!fdx_file.query_exists ()) {
-            return;
-        }
-
-        Gee.List<string> importSayings = new Gee.LinkedList<string> ();
-        importSayings.add (_("Raiding the screenplay vault..."));
-        importSayings.add (_("Converting Final Draft to Fountain!"));
-        importSayings.add (_("Lights, camera, import!"));
-
-        Thinking worker = new Thinking (_("Importing FDX"), () => {
-            string bundle_name = fdx_file.get_basename ();
-            bundle_name = bundle_name.substring (0, bundle_name.last_index_of ("."));
-            string dest_path = Path.build_filename (parent.get_sheets_path (), bundle_name + ".fountain");
-
-            string fdx_content = get_file_contents (fdx_file.get_path ());
-            string fountain_content = FountainFdx.fdx_to_fountain (fdx_content);
-
-            if (fountain_content != "") {
-                File dest_file = File.new_for_path (dest_path);
-                try {
-                    save_file (dest_file, fountain_content.data);
-                } catch (Error e) {
-                    warning ("Could not save converted FDX file: %s", e.message);
-                }
-            }
-        }, importSayings, ThiefApp.get_instance ());
-
-        worker.run ();
-        parent.refresh ();
-        ThiefApp.get_instance ().library.refresh_dir (parent);
+        FileImporter.import_fdx (fdx_path, parent);
     }
 
     public class FileLock : Object {
