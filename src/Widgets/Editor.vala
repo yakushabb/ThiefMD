@@ -111,6 +111,10 @@ namespace ThiefMD.Widgets {
             // Sync our local buffer reference with the View's default buffer
             buffer = (GtkSource.Buffer) this.get_buffer ();
 
+            // Focus mode tags for highlighted and dimmed text
+            focus_text = buffer.create_tag ("focus-text");
+            outoffocus_text = buffer.create_tag ("out-of-focus-text");
+
             // Initialize mutex helpers before any debounced work runs
             disk_change_prompted = new TimedMutex (Constants.AUTOSAVE_TIMEOUT);
             dynamic_margin_update = new TimedMutex (250);
@@ -317,6 +321,10 @@ namespace ThiefMD.Widgets {
                 spellcheck_enable ();
                 return false;
             });
+
+            // Apply the current settings immediately so visual features
+            // like focus mode colors/tags are active from startup.
+            update_settings ();
         }
 
         /* GTK4 TODO: motion_notify_event replaced by Gtk.EventController
