@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.kmwallio.thiefmd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 21:54-0800\n"
+"POT-Creation-Date: 2026-02-22 22:29-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -712,103 +712,103 @@ msgstr ""
 msgid "Insert YAML Frontmatter"
 msgstr ""
 
-#: src/Widgets/Library.vala:964 src/Widgets/Preferences.vala:377
+#: src/Widgets/Library.vala:1078 src/Widgets/Preferences.vala:377
 msgid "None"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Folder"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Reader"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Love"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Game"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Art"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Nature"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Food"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Help"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Cool"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Angel"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Monkey"
 msgstr ""
 
-#: src/Widgets/Library.vala:966 src/Widgets/Preferences.vala:144
+#: src/Widgets/Library.vala:1080 src/Widgets/Preferences.vala:144
 msgid "WordPress"
 msgstr ""
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Ghost"
 msgstr ""
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Write Freely"
 msgstr ""
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Trash"
 msgstr ""
 
-#: src/Widgets/Library.vala:1031
+#: src/Widgets/Library.vala:1145
 msgid "Export Preview"
 msgstr ""
 
-#: src/Widgets/Library.vala:1032
+#: src/Widgets/Library.vala:1146
 msgid "Writing Statistics"
 msgstr ""
 
-#: src/Widgets/Library.vala:1036
+#: src/Widgets/Library.vala:1150
 msgid "Search "
 msgstr ""
 
-#: src/Widgets/Library.vala:1040
+#: src/Widgets/Library.vala:1154
 msgid "Open in File Manager"
 msgstr ""
 
-#: src/Widgets/Library.vala:1041
+#: src/Widgets/Library.vala:1155
 msgid "Create Sub-Folder"
 msgstr ""
 
-#: src/Widgets/Library.vala:1043
+#: src/Widgets/Library.vala:1157
 msgid "Hide from Library"
 msgstr ""
 
-#: src/Widgets/Library.vala:1045
+#: src/Widgets/Library.vala:1159
 msgid "Show Hidden Items"
 msgstr ""
 
-#: src/Widgets/Library.vala:1049
+#: src/Widgets/Library.vala:1163
 msgid "Set Project Icon"
 msgstr ""
 
-#: src/Widgets/Library.vala:1054
+#: src/Widgets/Library.vala:1168
 msgid "Remove from Library"
 msgstr ""
 

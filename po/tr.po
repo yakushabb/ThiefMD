@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ThiefMD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 21:54-0800\n"
+"POT-Creation-Date: 2026-02-22 22:29-0800\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -736,103 +736,103 @@ msgstr "Tarih ve Saat Ekle"
 msgid "Insert YAML Frontmatter"
 msgstr "YAML Frontmatter Ekle"
 
-#: src/Widgets/Library.vala:964 src/Widgets/Preferences.vala:377
+#: src/Widgets/Library.vala:1078 src/Widgets/Preferences.vala:377
 msgid "None"
 msgstr "Yok"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Folder"
 msgstr "Klasör"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Reader"
 msgstr "Seslendiren"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Love"
 msgstr "Aşk"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Game"
 msgstr "Oyun"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Art"
 msgstr "Art"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Nature"
 msgstr "Doğa"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Food"
 msgstr "Yiyecek"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Help"
 msgstr "Yardım"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Cool"
 msgstr "Havalı"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Angel"
 msgstr "Melek"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Monkey"
 msgstr "Maymun"
 
-#: src/Widgets/Library.vala:966 src/Widgets/Preferences.vala:144
+#: src/Widgets/Library.vala:1080 src/Widgets/Preferences.vala:144
 msgid "WordPress"
 msgstr "WordPress"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Ghost"
 msgstr "Ghost"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Write Freely"
 msgstr "Write Freely"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Trash"
 msgstr "Çöp"
 
-#: src/Widgets/Library.vala:1031
+#: src/Widgets/Library.vala:1145
 msgid "Export Preview"
 msgstr "Dışa Aktarma Önizlemesi"
 
-#: src/Widgets/Library.vala:1032
+#: src/Widgets/Library.vala:1146
 msgid "Writing Statistics"
 msgstr "Yazım İstatistikleri"
 
-#: src/Widgets/Library.vala:1036
+#: src/Widgets/Library.vala:1150
 msgid "Search "
 msgstr "Ara"
 
-#: src/Widgets/Library.vala:1040
+#: src/Widgets/Library.vala:1154
 msgid "Open in File Manager"
 msgstr "Dosya Yöneticisiyle Aç"
 
-#: src/Widgets/Library.vala:1041
+#: src/Widgets/Library.vala:1155
 msgid "Create Sub-Folder"
 msgstr "Alt Klasör Oluştur"
 
-#: src/Widgets/Library.vala:1043
+#: src/Widgets/Library.vala:1157
 msgid "Hide from Library"
 msgstr "Kitaplıktan gizle"
 
-#: src/Widgets/Library.vala:1045
+#: src/Widgets/Library.vala:1159
 msgid "Show Hidden Items"
 msgstr "Gizli Ogeleri Göster"
 
-#: src/Widgets/Library.vala:1049
+#: src/Widgets/Library.vala:1163
 msgid "Set Project Icon"
 msgstr "Proje Simgesi Ayarla"
 
-#: src/Widgets/Library.vala:1054
+#: src/Widgets/Library.vala:1168
 msgid "Remove from Library"
 msgstr "Kitaplıktan kaldır"
 
