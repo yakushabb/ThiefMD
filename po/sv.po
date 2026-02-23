@@ -2,48 +2,56 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ThiefMD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-16 19:20-0800\n"
+"POT-Creation-Date: 2026-02-22 21:54-0800\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 
-#: src/ThiefApp.vala:198
+#: src/ThiefApp.vala:211
 msgid "Library"
 msgstr "Bibliotek"
 
-#: src/ThiefApp.vala:206
+#: src/ThiefApp.vala:219
 msgid "Add Folder to Library"
 msgstr "Lägg till mapp i biblioteket"
 
-#: src/ThiefApp.vala:441
+#: src/ThiefApp.vala:457 src/Connections/WordpressConnection.vala:167
 msgid "HTML"
 msgstr "HTML"
 
-#: src/ThiefApp.vala:442
+#: src/ThiefApp.vala:458
 msgid "PDF"
 msgstr "PDF"
 
-#: src/ThiefApp.vala:443
+#: src/ThiefApp.vala:459
 msgid "MHTML"
 msgstr "MHTML"
 
-#: src/ThiefApp.vala:444
+#: src/ThiefApp.vala:460
 msgid "Markdown"
 msgstr "Markdown"
 
-#: src/ThiefApp.vala:445
+#: src/ThiefApp.vala:461
 msgid "LaTeX"
 msgstr "LaTeX"
 
-#: src/ThiefApp.vala:446
+#: src/ThiefApp.vala:462
 msgid "DocX"
 msgstr "DocX"
 
-#: src/ThiefApp.vala:447
+#: src/ThiefApp.vala:463
 msgid "Fountain"
 msgstr "Fountain"
+
+#: src/ThiefApp.vala:464
+msgid "FDX"
+msgstr ""
+
+#: src/ThiefApp.vala:465
+msgid "TextPack"
+msgstr ""
 
 #. Visual Settings
 #. Arbitrary strings
@@ -326,22 +334,6 @@ msgstr ""
 "Arbetar du med många länkar? Slå på experimentellt läge för att göra din "
 "markdown mer läsbar \"Ctrl+Shift+M\""
 
-#: src/Controllers/FileManager.vala:39
-msgid "Stealing file contents..."
-msgstr ""
-
-#: src/Controllers/FileManager.vala:40
-msgid "This isn't plagiarism, it's a remix!"
-msgstr ""
-
-#: src/Controllers/FileManager.vala:41
-msgid "NYT Best Seller, here we come!"
-msgstr ""
-
-#: src/Controllers/FileManager.vala:43
-msgid "Importing File"
-msgstr "Importerar fil"
-
 #: src/Controllers/Dialogs.vala:98
 msgid "Add to Library"
 msgstr "Lägg till i biblioteket"
@@ -410,7 +402,7 @@ msgid "No file opened"
 msgstr "Ingen fil öppnad"
 
 #: src/Connections/ConnectionBase.vala:86
-#: src/Widgets/PublisherPreviewWindow.vala:192
+#: src/Widgets/PublisherPreviewWindow.vala:194
 #: src/Widgets/ProjectStatistics.vala:76 src/Widgets/QuickPreferences.vala:75
 msgid "Close"
 msgstr "Stäng"
@@ -455,19 +447,21 @@ msgstr ""
 
 #: src/Connections/WriteFreelyConnection.vala:240
 #: src/Connections/GhostConnection.vala:362
-#: src/Connections/WordpressConnection.vala:219
+#: src/Connections/WordpressConnection.vala:226
 msgid "Uploading images"
 msgstr "Laddar upp bilder"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid " Published"
 msgstr " Publicerat"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid "Post Published"
 msgstr "Efter publicering"
 
@@ -514,23 +508,36 @@ msgstr ""
 msgid "New Wordpress Connection"
 msgstr "Ny Wordpress-anslutning"
 
-#: src/Connections/WordpressConnection.vala:194
+#: src/Connections/WordpressConnection.vala:162
+msgid "Draft"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:163
+#, fuzzy
+msgid "Published"
+msgstr " Publicerat"
+
+#: src/Connections/WordpressConnection.vala:168
+msgid "Blocks"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:201
 msgid "Taking it to the internet!"
 msgstr ""
 
-#: src/Connections/WordpressConnection.vala:195
+#: src/Connections/WordpressConnection.vala:202
 msgid "Don't forget to share on reddit."
 msgstr ""
 
-#: src/Connections/WordpressConnection.vala:196
+#: src/Connections/WordpressConnection.vala:203
 msgid "Pressing words together..."
 msgstr ""
 
-#: src/Enrichments/Fountain.vala:53
+#: src/Enrichments/Fountain.vala:71
 msgid "Characters"
 msgstr "Tecken"
 
-#: src/Enrichments/Fountain.vala:246
+#: src/Enrichments/Fountain.vala:314
 #, fuzzy
 msgid "Fountain character"
 msgstr "Fountain-filer"
@@ -615,29 +622,29 @@ msgstr "Fungerande PDF-magi"
 msgid "Making sure your hard work looks purrfect..."
 msgstr "Tillser att ditt arbete ser perfekt ut..."
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:136
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:136
 msgid "About ThiefMD"
 msgstr "Om ThiefMD"
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:134
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:134
 msgid "About"
 msgstr "Om"
 
-#: src/Widgets/About.vala:43
+#: src/Widgets/About.vala:41
 msgid "Credits"
 msgstr "Erkännanden"
 
 #. website = ThiefProperties.URL;
-#: src/Widgets/About.vala:94
+#: src/Widgets/About.vala:88
 msgid "Feedback"
 msgstr "Återkoppling"
 
 #. license_type = ThiefProperties.LICENSE_TYPE;
-#: src/Widgets/About.vala:99
+#: src/Widgets/About.vala:93
 msgid "This program comes with absolutely no warranty."
 msgstr "Detta program levereras helt utan garantier."
 
-#: src/Widgets/About.vala:100
+#: src/Widgets/About.vala:94
 msgid ""
 "See the <a href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU General "
 "Public License, version 3 or later</a> for details."
@@ -661,7 +668,7 @@ msgstr "Visa anteckningar"
 msgid "New Sheet"
 msgstr "Nytt blad"
 
-#: src/Widgets/Sheets.vala:283
+#: src/Widgets/Sheets.vala:324
 msgid "Select an item from the Library to open or create a new Sheet."
 msgstr ""
 
@@ -711,15 +718,15 @@ msgstr "Kopiera filsökväg"
 msgid "Danger Zone"
 msgstr "Riskzon"
 
-#: src/Widgets/Sheet.vala:397
+#: src/Widgets/Sheet.vala:396
 msgid "Move to Trash"
 msgstr "Flytta till papperskorgen"
 
-#: src/Widgets/Editor.vala:201
+#: src/Widgets/Editor.vala:206
 msgid "Insert Datetime"
 msgstr "Infoga datumtid"
 
-#: src/Widgets/Editor.vala:219
+#: src/Widgets/Editor.vala:224
 msgid "Insert YAML Frontmatter"
 msgstr "Infoga YAML Frontmatter"
 
@@ -843,15 +850,21 @@ msgstr "Skapa"
 msgid "Import"
 msgstr "Importera"
 
-#: src/Widgets/Notes.vala:60
+#: src/Widgets/Notes.vala:75
 #, fuzzy
 msgid "Sheet Notes"
 msgstr "Visa anteckningar"
 
-#: src/Widgets/Notes.vala:68
+#: src/Widgets/Notes.vala:84
 #, fuzzy
 msgid "Project Notes"
 msgstr "Ange projektikon"
+
+#. Add "Open Link" to the TextView's built-in right-click menu
+#: src/Widgets/Notes.vala:273
+#, fuzzy
+msgid "Open Link"
+msgstr "Öppna fil"
 
 #: src/Widgets/Preferences.vala:77
 msgid "Current Connections"
@@ -949,7 +962,7 @@ msgstr "Antal rader att förhandsvisa i bladvy"
 msgid "Add New Theme"
 msgstr "Lägg till nytt tema"
 
-#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:155
+#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:157
 #: src/Widgets/ProjectStatistics.vala:69
 msgid "Export"
 msgstr "Exportera"
@@ -1155,21 +1168,21 @@ msgstr "Aktivera experimentella funktioner"
 msgid "Preview: "
 msgstr "Förhandsgranska"
 
-#: src/Widgets/PublisherPreviewWindow.vala:67
-#: src/Widgets/PublisherPreviewWindow.vala:208
+#: src/Widgets/PublisherPreviewWindow.vala:69
+#: src/Widgets/PublisherPreviewWindow.vala:210
 #: src/Widgets/QuickPreferences.vala:99
 msgid "Publishing Preview"
 msgstr "Förhandsgranska publicering"
 
-#: src/Widgets/PublisherPreviewWindow.vala:157
+#: src/Widgets/PublisherPreviewWindow.vala:159
 msgid "Export Item"
 msgstr "Exportera objekt"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "File not Exported"
 msgstr "Filen inte exporterad"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "ThiefMD could not export the file, please try again."
 msgstr "ThiefMD kunde inte exportera filen, försök igen."
 
@@ -1348,6 +1361,9 @@ msgstr "<b>Stjäl filinnehåll...</b>"
 #: src/Widgets/MarkdownCheatSheet.vala:58
 msgid "Heading"
 msgstr "Rubrik"
+
+#~ msgid "Importing File"
+#~ msgstr "Importerar fil"
 
 #~ msgid "_Open"
 #~ msgstr "_Öppna"
