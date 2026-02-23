@@ -39,13 +39,31 @@ namespace ThiefMD.Enrichments {
     public class FountainCharacterCompletionProvider : Object, GtkSource.CompletionProvider {
         private unowned Gtk.TextBuffer buffer;
         private Regex? character_regex;
+        private Gee.HashSet<string> cached_characters;
+        private bool character_cache_dirty;
+        private ulong buffer_changed_handler_id;
 
         public FountainCharacterCompletionProvider (Gtk.TextBuffer buffer) {
             this.buffer = buffer;
+            cached_characters = new Gee.HashSet<string> ();
+            character_cache_dirty = true;
+            buffer_changed_handler_id = 0;
+
+            buffer_changed_handler_id = buffer.changed.connect (() => {
+                character_cache_dirty = true;
+            });
+
             try {
                 character_regex = new Regex ("(?<=\\n)([ \\t]*?[^<>\\p{Ll}\\s\\/\\n][^<>\\p{Ll}:!\\?\\n]*[^<>\\p{Ll}\\(!\\?:,\\n\\.][ \\t]?|\\([^\\n]+\\))\\n{1}(?!\\n)(.+?)\\n{1}", RegexCompileFlags.BSR_ANYCRLF | RegexCompileFlags.NEWLINE_ANYCRLF, 0);
             } catch (Error e) {
                 warning ("Could not build fountain completion regex: %s", e.message);
+            }
+        }
+
+        ~FountainCharacterCompletionProvider () {
+            if (buffer_changed_handler_id != 0 && buffer != null) {
+                buffer.disconnect (buffer_changed_handler_id);
+                buffer_changed_handler_id = 0;
             }
         }
 
@@ -127,10 +145,15 @@ namespace ThiefMD.Enrichments {
         }
 
         private Gee.HashSet<string> collect_characters () {
-            var characters = new Gee.HashSet<string> ();
             if (character_regex == null || buffer == null) {
-                return characters;
+                return new Gee.HashSet<string> ();
             }
+
+            if (!character_cache_dirty) {
+                return cached_characters;
+            }
+
+            cached_characters.clear ();
 
             Gtk.TextIter start, end;
             buffer.get_bounds (out start, out end);
@@ -149,7 +172,7 @@ namespace ThiefMD.Enrichments {
                         if (cleaned == "" || cleaned.has_prefix ("(")) {
                             continue;
                         }
-                        characters.add (cleaned);
+                        cached_characters.add (cleaned);
                         if (logged < 10) {
                             debug ("Fountain completion: found character '%s'", cleaned);
                             logged++;
@@ -160,11 +183,13 @@ namespace ThiefMD.Enrichments {
                 warning ("Could not collect fountain characters: %s", e.message);
             }
 
-            if (characters.size > 10) {
-                debug ("Fountain completion: %u characters collected (showing first 10)", characters.size);
+            if (cached_characters.size > 10) {
+                debug ("Fountain completion: %u characters collected (showing first 10)", cached_characters.size);
             }
 
-            return characters;
+            character_cache_dirty = false;
+
+            return cached_characters;
         }
 
         public async virtual GLib.ListModel populate_async (GtkSource.CompletionContext context, GLib.Cancellable? cancellable) throws GLib.Error {
@@ -320,6 +345,15 @@ namespace ThiefMD.Enrichments {
         private Gtk.EventControllerKey? completion_request_key_controller;
         private ulong completion_show_handler_id;
         private ulong completion_hide_handler_id;
+        private ulong view_realized_handler_id;
+        private ulong view_scale_factor_handler_id;
+        private bool margins_initialized;
+        private int cached_font_width;
+        private bool cached_fullscreen;
+        private bool cached_touch_friendly;
+        private bool cached_view_realized;
+        private int cached_view_scale_factor;
+        private string cached_font_family;
 
         public FountainEnrichment () {
             try {
@@ -335,8 +369,17 @@ namespace ThiefMD.Enrichments {
             completion_request_key_controller = null;
             completion_show_handler_id = 0;
             completion_hide_handler_id = 0;
+            view_realized_handler_id = 0;
+            view_scale_factor_handler_id = 0;
             words_provider = null;
             last_cursor = -1;
+            margins_initialized = false;
+            cached_font_width = -1;
+            cached_fullscreen = false;
+            cached_touch_friendly = false;
+            cached_view_realized = false;
+            cached_view_scale_factor = 1;
+            cached_font_family = "";
         }
 
         public void reset () {
@@ -356,8 +399,6 @@ namespace ThiefMD.Enrichments {
             if (!checking.trylock ()) {
                 return;
             }
-
-            calculate_margins ();
 
             // Get current cursor location
             Gtk.TextIter start, end, cursor_iter;
@@ -422,9 +463,6 @@ namespace ThiefMD.Enrichments {
         }
 
         private void tag_char_diag_helper (Regex regex) {
-            Gtk.TextIter cursor_iter;
-            var cursor = buffer.get_insert ();
-            buffer.get_iter_at_mark (out cursor_iter, cursor);
             try {
                 MatchInfo match_info;
                 if (regex.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
@@ -432,18 +470,6 @@ namespace ThiefMD.Enrichments {
                         int start_pos, end_pos;
                         bool highlight = false;
                         Gtk.TextIter start, end;
-
-                        // Clear tags from all
-                        highlight = match_info.fetch_pos (0, out start_pos, out end_pos);
-                        if (highlight) {
-                            start_pos = copy_offset + checking_copy.char_count (start_pos);
-                            end_pos = copy_offset + checking_copy.char_count (end_pos);
-                            buffer.get_iter_at_offset (out start, start_pos);
-                            buffer.get_iter_at_offset (out end, end_pos);
-                            buffer.remove_tag (tag_character, start, end);
-                            buffer.remove_tag (tag_dialogue, start, end);
-                            buffer.remove_tag (tag_parenthetical, start, end);
-                        }
 
                         highlight = match_info.fetch_pos (1, out start_pos, out end_pos);
                         string character = match_info.fetch (1);
@@ -551,6 +577,14 @@ namespace ThiefMD.Enrichments {
             settings_changed ();
             settings.changed.connect (settings_changed);
 
+            view_realized_handler_id = view.notify["realized"].connect (() => {
+                calculate_margins ();
+            });
+
+            view_scale_factor_handler_id = view.notify["scale-factor"].connect (() => {
+                calculate_margins ();
+            });
+
             completion_request_key_controller = new Gtk.EventControllerKey ();
             completion_request_key_controller.key_pressed.connect ((keyval, _keycode, state) => {
                 if ((state & Gdk.ModifierType.CONTROL_MASK) == 0) {
@@ -575,6 +609,7 @@ namespace ThiefMD.Enrichments {
         }
 
         private void settings_changed () {
+            calculate_margins ();
             update_character_provider ();
         }
 
@@ -631,12 +666,25 @@ namespace ThiefMD.Enrichments {
         private void calculate_margins () {
             var settings = AppSettings.get_default ();
             int f_w = (int)(settings.get_css_font_size () * ((settings.fullscreen ? 1.4 : 1)));
+            bool touch_friendly = ThiefApp.get_instance ().show_touch_friendly;
+            bool view_realized = view.get_realized ();
+            int view_scale_factor = view.get_scale_factor ();
+
+            if (margins_initialized &&
+                cached_font_width == f_w &&
+                cached_fullscreen == settings.fullscreen &&
+                cached_touch_friendly == touch_friendly &&
+                cached_view_realized == view_realized &&
+                cached_view_scale_factor == view_scale_factor &&
+                cached_font_family == settings.font_family) {
+                return;
+            }
 
             int hashtag_w = f_w;
             int space_w = f_w;
             int avg_w = f_w;
 
-            if (view.get_realized ()) {
+            if (view_realized) {
                 var font_desc = Pango.FontDescription.from_string (settings.font_family);
                 font_desc.set_size ((int)(f_w * Pango.SCALE * Pango.Scale.LARGE));
                 var font_context = view.get_pango_context ();
@@ -664,7 +712,7 @@ namespace ThiefMD.Enrichments {
                 // debug ("%s Hashtag: %d, Space: %d, AvgChar: %d", font_desc.get_family (), hashtag_w, space_w, avg_w);
             }
 
-            if (ThiefApp.get_instance ().show_touch_friendly) {
+            if (touch_friendly) {
                 // Character
                 tag_character.left_margin = (avg_w * 8);
                 tag_parenthetical.left_margin = (avg_w * 6);
@@ -679,6 +727,14 @@ namespace ThiefMD.Enrichments {
                 tag_dialogue.left_margin = (avg_w * 6);
                 tag_dialogue.right_margin = (avg_w * 6);
             }
+
+            margins_initialized = true;
+            cached_font_width = f_w;
+            cached_fullscreen = settings.fullscreen;
+            cached_touch_friendly = touch_friendly;
+            cached_view_realized = view_realized;
+            cached_view_scale_factor = view_scale_factor;
+            cached_font_family = settings.font_family;
         }
 
         public void detach () {
@@ -729,6 +785,17 @@ namespace ThiefMD.Enrichments {
                 completion_request_key_controller = null;
             }
 
+            if (view != null) {
+                if (view_realized_handler_id != 0) {
+                    view.disconnect (view_realized_handler_id);
+                    view_realized_handler_id = 0;
+                }
+                if (view_scale_factor_handler_id != 0) {
+                    view.disconnect (view_scale_factor_handler_id);
+                    view_scale_factor_handler_id = 0;
+                }
+            }
+
             tag_scene_heading = null;
             tag_character = null;
             tag_parenthetical = null;
@@ -737,6 +804,7 @@ namespace ThiefMD.Enrichments {
             view = null;
             buffer = null;
             last_cursor = -1;
+            margins_initialized = false;
         }
     }
 }
