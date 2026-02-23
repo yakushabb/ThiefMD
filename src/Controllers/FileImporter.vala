@@ -36,7 +36,7 @@ namespace ThiefMD.Controllers.FileImporter {
 
             string decoded_hay = maybe_url_decode (hay);
             if (decoded_hay == needle) {
-                match = decoded_hay;
+                match = hay;
                 return true;
             }
 
