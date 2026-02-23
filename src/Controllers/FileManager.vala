@@ -142,6 +142,31 @@ namespace ThiefMD.Controllers.FileManager {
         return value;
     }
 
+    internal string textpack_import_extension (string entry_path, string archive_path) {
+        string lowered_entry = entry_path.down ();
+        string lowered_archive = archive_path.down ();
+
+        if (lowered_entry == "text.fountain" || lowered_entry == "text.fou") {
+            return ".fountain";
+        }
+
+        if (lowered_archive.has_suffix (".highland") &&
+            (lowered_entry == "text.md" || lowered_entry == "text.markdown")) {
+            return ".fountain";
+        }
+
+        if (lowered_entry == "text.markdown") {
+            return ".md";
+        }
+
+        int dot_index = entry_path.last_index_of (".");
+        if (dot_index >= 0) {
+            return entry_path.substring (dot_index);
+        }
+
+        return ".md";
+    }
+
     private string normalize_archive_relative_path (string value) {
         string normalized = value.replace ("\\", "/").chug ().chomp ();
         while (normalized.has_prefix ("./")) {
@@ -1164,7 +1189,7 @@ namespace ThiefMD.Controllers.FileManager {
                         if (bin_buffer.length != 0) {
                             string dest_path;
                             if (is_text) {
-                                string ext = entry_path.substring (entry_path.last_index_of ("."));
+                                string ext = textpack_import_extension (entry_path, textpack_path);
                                 dest_path = Path.build_filename (parent.get_sheets_path (), bundle_name + ext);
                             } else {
                                 // Keep assets in assets/ so markdown references stay valid

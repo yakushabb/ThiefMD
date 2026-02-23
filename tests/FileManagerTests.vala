@@ -215,6 +215,19 @@ public class FileManagerTests {
             assert (FileManager.maybe_url_decode (broken) == broken);
         });
 
+        Test.add_func ("/thiefmd/textpack_import_extension", () => {
+            assert (FileManager.textpack_import_extension ("text.fountain", "movie.textpack") == ".fountain");
+            assert (FileManager.textpack_import_extension ("text.fou", "movie.textpack") == ".fountain");
+
+            // Highland files should keep screenplay semantics even when entry is markdown.
+            assert (FileManager.textpack_import_extension ("text.markdown", "movie.highland") == ".fountain");
+            assert (FileManager.textpack_import_extension ("text.md", "movie.highland") == ".fountain");
+
+            // Regular textpack markdown stays markdown.
+            assert (FileManager.textpack_import_extension ("text.markdown", "notes.textpack") == ".md");
+            assert (FileManager.textpack_import_extension ("text.md", "notes.textpack") == ".md");
+        });
+
         Test.add_func ("/thiefmd/bear2bk_blocks_path_traversal", () => {
             string archive_path = Path.build_filename (
                 Environment.get_tmp_dir (),
