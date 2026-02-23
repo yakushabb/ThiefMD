@@ -151,6 +151,7 @@ namespace ThiefMD.Connections {
         private PublisherPreviewWindow publisher_instance;
         public Wordpress.Client connection;
         private Gtk.ComboBoxText publish_state;
+        private Gtk.ComboBoxText export_format;
 
         public WordpressExporter (Wordpress.Client connected) {
             export_name = "Wordpress";
@@ -158,9 +159,14 @@ namespace ThiefMD.Connections {
             connection = connected;
 
             publish_state = new Gtk.ComboBoxText ();
-            publish_state.append_text ("Draft");
-            publish_state.append_text ("Published");
+            publish_state.append_text (_("Draft"));
+            publish_state.append_text (_("Published"));
             publish_state.set_active (0);
+
+            export_format = new Gtk.ComboBoxText ();
+            export_format.append_text (_("HTML"));
+            export_format.append_text (_("Blocks"));
+            export_format.set_active (0);
         }
 
         public override string update_markdown (string markdown) {
@@ -169,12 +175,14 @@ namespace ThiefMD.Connections {
 
         public override void attach (PublisherPreviewWindow ppw) {
             publisher_instance = ppw;
+            publisher_instance.headerbar.pack_end (export_format);
             publisher_instance.headerbar.pack_end (publish_state);
             return;
         }
 
         public override void detach () {
             publisher_instance.headerbar.remove (publish_state);
+            publisher_instance.headerbar.remove (export_format);
             publisher_instance = null;
             return;
         }
@@ -184,7 +192,6 @@ namespace ThiefMD.Connections {
             string title;
             string date;
             string id = "";
-            string html = "";
             string featured_image = "";
             int featured_image_id = -1;
 
@@ -275,13 +282,14 @@ namespace ThiefMD.Connections {
 
             int published_state = publish_state.get_active ();
             bool immediately_publish = (published_state == 1);
+            int format_state = export_format.get_active ();
+            bool export_as_blocks = (format_state == 1);
 
-            if (generate_html (body, out html)) {
-                // Simple post
-                if (connection.create_post_simple (
+            if (export_as_blocks) {
+                if (connection.create_post_from_markdown (
                     out id,
                     title,
-                    html,
+                    body,
                     immediately_publish,
                     featured_image_id))
                 {
@@ -302,6 +310,35 @@ namespace ThiefMD.Connections {
                     status.run ();
                 } else {
                     warning ("Hit error");
+                }
+            } else {
+                string html = "";
+                if (generate_html (body, out html)) {
+                    if (connection.create_post_simple (
+                        out id,
+                        title,
+                        html,
+                        immediately_publish,
+                        featured_image_id))
+                    {
+                        published = true;
+                        debug ("Posted");
+                        Gtk.Label label = new Gtk.Label (
+                            "<b>Post URL:</b> <a href='%s'>%s</a>".printf (
+                                connection.blog_url + "/?p=" + id,
+                                connection.blog_url + "/?p=" + id));
+
+                        label.xalign = 0;
+                        label.use_markup = true;
+                        PublishedStatusWindow status = new PublishedStatusWindow (
+                            publisher_instance,
+                            (title != "") ? title + _(" Published") : _("Post Published"),
+                            label);
+
+                        status.run ();
+                    } else {
+                        warning ("Hit error");
+                    }
                 }
             }
 

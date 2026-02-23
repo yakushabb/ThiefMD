@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.kmwallio.thiefmd\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-16 19:20-0800\n"
+"POT-Creation-Date: 2026-02-22 22:29-0800\n"
 "PO-Revision-Date: 2022-08-27 17:27+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: Dutch\n"
@@ -17,41 +17,49 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 22.08.0\n"
 
-#: src/ThiefApp.vala:198
+#: src/ThiefApp.vala:211
 msgid "Library"
 msgstr "Verzameling"
 
-#: src/ThiefApp.vala:206
+#: src/ThiefApp.vala:219
 msgid "Add Folder to Library"
 msgstr "Map toevoegen aan verzameling"
 
-#: src/ThiefApp.vala:441
+#: src/ThiefApp.vala:457 src/Connections/WordpressConnection.vala:167
 msgid "HTML"
 msgstr "Html"
 
-#: src/ThiefApp.vala:442
+#: src/ThiefApp.vala:458
 msgid "PDF"
 msgstr "Pdf"
 
-#: src/ThiefApp.vala:443
+#: src/ThiefApp.vala:459
 msgid "MHTML"
 msgstr "Mhtml"
 
-#: src/ThiefApp.vala:444
+#: src/ThiefApp.vala:460
 msgid "Markdown"
 msgstr "Markdown"
 
-#: src/ThiefApp.vala:445
+#: src/ThiefApp.vala:461
 msgid "LaTeX"
 msgstr "LaTeX"
 
-#: src/ThiefApp.vala:446
+#: src/ThiefApp.vala:462
 msgid "DocX"
 msgstr "Docx"
 
-#: src/ThiefApp.vala:447
+#: src/ThiefApp.vala:463
 msgid "Fountain"
 msgstr "Fountain"
+
+#: src/ThiefApp.vala:464
+msgid "FDX"
+msgstr ""
+
+#: src/ThiefApp.vala:465
+msgid "TextPack"
+msgstr ""
 
 #. Visual Settings
 #. Arbitrary strings
@@ -336,22 +344,6 @@ msgstr ""
 "Maakt u vaak gebruik van links? Schakel dan met `Ctrl+Shift+M` de "
 "experimentele modus in om uw markdown leesbaarder te maken."
 
-#: src/Controllers/FileManager.vala:39
-msgid "Stealing file contents..."
-msgstr "Bezig met stelen van bestandsinhoud…"
-
-#: src/Controllers/FileManager.vala:40
-msgid "This isn't plagiarism, it's a remix!"
-msgstr "Dit is geen plagiaat, dit is een remix!"
-
-#: src/Controllers/FileManager.vala:41
-msgid "NYT Best Seller, here we come!"
-msgstr "Laat die Gouden Griffel maar komen!"
-
-#: src/Controllers/FileManager.vala:43
-msgid "Importing File"
-msgstr "Bezig met importeren…"
-
 #: src/Controllers/Dialogs.vala:98
 msgid "Add to Library"
 msgstr "Toevoegen aan verzameling"
@@ -420,7 +412,7 @@ msgid "No file opened"
 msgstr "Er is geen bestand geopend"
 
 #: src/Connections/ConnectionBase.vala:86
-#: src/Widgets/PublisherPreviewWindow.vala:192
+#: src/Widgets/PublisherPreviewWindow.vala:194
 #: src/Widgets/ProjectStatistics.vala:76 src/Widgets/QuickPreferences.vala:75
 msgid "Close"
 msgstr "Sluiten"
@@ -465,19 +457,21 @@ msgstr "Is dit een selfie en bent u blij me te zien?"
 
 #: src/Connections/WriteFreelyConnection.vala:240
 #: src/Connections/GhostConnection.vala:362
-#: src/Connections/WordpressConnection.vala:219
+#: src/Connections/WordpressConnection.vala:226
 msgid "Uploading images"
 msgstr "Bezig met uploaden…"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid " Published"
 msgstr "Gepubliceerd"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid "Post Published"
 msgstr "Het item is gepubliceerd"
 
@@ -524,23 +518,36 @@ msgstr ""
 msgid "New Wordpress Connection"
 msgstr "Nieuwe Wordpress-koppeling"
 
-#: src/Connections/WordpressConnection.vala:194
+#: src/Connections/WordpressConnection.vala:162
+msgid "Draft"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:163
+#, fuzzy
+msgid "Published"
+msgstr "Gepubliceerd"
+
+#: src/Connections/WordpressConnection.vala:168
+msgid "Blocks"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:201
 msgid "Taking it to the internet!"
 msgstr "Neem uw woorden mee naar het internet!"
 
-#: src/Connections/WordpressConnection.vala:195
+#: src/Connections/WordpressConnection.vala:202
 msgid "Don't forget to share on reddit."
 msgstr "Vergeet uw item niet op Reddit te delen."
 
-#: src/Connections/WordpressConnection.vala:196
+#: src/Connections/WordpressConnection.vala:203
 msgid "Pressing words together..."
 msgstr "Bezig met samenstellen van tekst…"
 
-#: src/Enrichments/Fountain.vala:53
+#: src/Enrichments/Fountain.vala:71
 msgid "Characters"
 msgstr "Tekens"
 
-#: src/Enrichments/Fountain.vala:246
+#: src/Enrichments/Fountain.vala:314
 #, fuzzy
 msgid "Fountain character"
 msgstr "Fountain-bestanden"
@@ -625,29 +632,29 @@ msgstr "Bezig met gebruiken van pdf-magie…"
 msgid "Making sure your hard work looks purrfect..."
 msgstr "Bezig met nakijken of uw harde werk loont…"
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:136
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:136
 msgid "About ThiefMD"
 msgstr "Over ThiefMD"
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:134
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:134
 msgid "About"
 msgstr "Over"
 
-#: src/Widgets/About.vala:43
+#: src/Widgets/About.vala:41
 msgid "Credits"
 msgstr "Met dank aan"
 
 #. website = ThiefProperties.URL;
-#: src/Widgets/About.vala:94
+#: src/Widgets/About.vala:88
 msgid "Feedback"
 msgstr "Feedback"
 
 #. license_type = ThiefProperties.LICENSE_TYPE;
-#: src/Widgets/About.vala:99
+#: src/Widgets/About.vala:93
 msgid "This program comes with absolutely no warranty."
 msgstr "Dit programma wordt zonder enige vorm van garantie geleverd."
 
-#: src/Widgets/About.vala:100
+#: src/Widgets/About.vala:94
 msgid ""
 "See the <a href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU General "
 "Public License, version 3 or later</a> for details."
@@ -671,7 +678,7 @@ msgstr "Aantekeningen tonen"
 msgid "New Sheet"
 msgstr "Nieuw werkblad"
 
-#: src/Widgets/Sheets.vala:283
+#: src/Widgets/Sheets.vala:324
 msgid "Select an item from the Library to open or create a new Sheet."
 msgstr ""
 
@@ -721,115 +728,115 @@ msgstr "Bestandslocatie kopiëren"
 msgid "Danger Zone"
 msgstr "Gevarenzone"
 
-#: src/Widgets/Sheet.vala:397
+#: src/Widgets/Sheet.vala:396
 msgid "Move to Trash"
 msgstr "Verplaatsen naar prullenbak"
 
-#: src/Widgets/Editor.vala:201
+#: src/Widgets/Editor.vala:206
 msgid "Insert Datetime"
 msgstr "Datum en tijd invoegen"
 
-#: src/Widgets/Editor.vala:219
+#: src/Widgets/Editor.vala:224
 msgid "Insert YAML Frontmatter"
 msgstr "Yaml-frontmatter invoegen"
 
-#: src/Widgets/Library.vala:964 src/Widgets/Preferences.vala:377
+#: src/Widgets/Library.vala:1078 src/Widgets/Preferences.vala:377
 msgid "None"
 msgstr "Geen"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Folder"
 msgstr "Map"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Reader"
 msgstr "Lezer"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Love"
 msgstr "Liefde"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Game"
 msgstr "Spel"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Art"
 msgstr "Kunst"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Nature"
 msgstr "Natuur"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Food"
 msgstr "Eten en drinken"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Help"
 msgstr "Hulp"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Cool"
 msgstr "Cool"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Angel"
 msgstr "Engel"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Monkey"
 msgstr "Aap"
 
-#: src/Widgets/Library.vala:966 src/Widgets/Preferences.vala:144
+#: src/Widgets/Library.vala:1080 src/Widgets/Preferences.vala:144
 msgid "WordPress"
 msgstr "WordPress"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Ghost"
 msgstr "Ghost"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Write Freely"
 msgstr "Write Freely"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Trash"
 msgstr "Prullenbak"
 
-#: src/Widgets/Library.vala:1031
+#: src/Widgets/Library.vala:1145
 msgid "Export Preview"
 msgstr "Voorvertoning exporteren"
 
-#: src/Widgets/Library.vala:1032
+#: src/Widgets/Library.vala:1146
 msgid "Writing Statistics"
 msgstr "Schrijfstatistieken"
 
-#: src/Widgets/Library.vala:1036
+#: src/Widgets/Library.vala:1150
 msgid "Search "
 msgstr "Zoeken "
 
-#: src/Widgets/Library.vala:1040
+#: src/Widgets/Library.vala:1154
 msgid "Open in File Manager"
 msgstr "Tonen in bestandsbeheerder"
 
-#: src/Widgets/Library.vala:1041
+#: src/Widgets/Library.vala:1155
 msgid "Create Sub-Folder"
 msgstr "Onderliggende map aanmaken"
 
-#: src/Widgets/Library.vala:1043
+#: src/Widgets/Library.vala:1157
 msgid "Hide from Library"
 msgstr "Verbergen in verzameling"
 
-#: src/Widgets/Library.vala:1045
+#: src/Widgets/Library.vala:1159
 msgid "Show Hidden Items"
 msgstr "Verborgen items tonen"
 
-#: src/Widgets/Library.vala:1049
+#: src/Widgets/Library.vala:1163
 msgid "Set Project Icon"
 msgstr "Projectpictogram instellen"
 
-#: src/Widgets/Library.vala:1054
+#: src/Widgets/Library.vala:1168
 msgid "Remove from Library"
 msgstr "Verwijderen uit verzameling"
 
@@ -853,15 +860,21 @@ msgstr "Aanmaken"
 msgid "Import"
 msgstr "Importeren"
 
-#: src/Widgets/Notes.vala:60
+#: src/Widgets/Notes.vala:75
 #, fuzzy
 msgid "Sheet Notes"
 msgstr "Aantekeningen tonen"
 
-#: src/Widgets/Notes.vala:68
+#: src/Widgets/Notes.vala:84
 #, fuzzy
 msgid "Project Notes"
 msgstr "Projectpictogram instellen"
+
+#. Add "Open Link" to the TextView's built-in right-click menu
+#: src/Widgets/Notes.vala:273
+#, fuzzy
+msgid "Open Link"
+msgstr "Bestand openen"
 
 #: src/Widgets/Preferences.vala:77
 msgid "Current Connections"
@@ -962,7 +975,7 @@ msgstr "Aantal voor te vertonen regels in werkbladweergave"
 msgid "Add New Theme"
 msgstr "Thema toevoegen"
 
-#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:155
+#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:157
 #: src/Widgets/ProjectStatistics.vala:69
 msgid "Export"
 msgstr "Exporteren"
@@ -1168,21 +1181,21 @@ msgstr "Experimentele functies inschakelen"
 msgid "Preview: "
 msgstr "Voorvertonen"
 
-#: src/Widgets/PublisherPreviewWindow.vala:67
-#: src/Widgets/PublisherPreviewWindow.vala:208
+#: src/Widgets/PublisherPreviewWindow.vala:69
+#: src/Widgets/PublisherPreviewWindow.vala:210
 #: src/Widgets/QuickPreferences.vala:99
 msgid "Publishing Preview"
 msgstr "Publicatievoorvertoning"
 
-#: src/Widgets/PublisherPreviewWindow.vala:157
+#: src/Widgets/PublisherPreviewWindow.vala:159
 msgid "Export Item"
 msgstr "Item exporteren"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "File not Exported"
 msgstr "Bestand niet geëxporteerd"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "ThiefMD could not export the file, please try again."
 msgstr "Het bestand kan niet worden geëxporteerd. Probeer het opnieuw."
 
@@ -1361,6 +1374,18 @@ msgstr "<b>Bezig met stelen van bestandsinhoud…</b>"
 #: src/Widgets/MarkdownCheatSheet.vala:58
 msgid "Heading"
 msgstr "Kop"
+
+#~ msgid "Stealing file contents..."
+#~ msgstr "Bezig met stelen van bestandsinhoud…"
+
+#~ msgid "This isn't plagiarism, it's a remix!"
+#~ msgstr "Dit is geen plagiaat, dit is een remix!"
+
+#~ msgid "NYT Best Seller, here we come!"
+#~ msgstr "Laat die Gouden Griffel maar komen!"
+
+#~ msgid "Importing File"
+#~ msgstr "Bezig met importeren…"
 
 #~ msgid "_Open"
 #~ msgstr "_Openen"

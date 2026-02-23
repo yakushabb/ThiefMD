@@ -2,48 +2,56 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ThiefMD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-16 19:20-0800\n"
+"POT-Creation-Date: 2026-02-22 22:29-0800\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 
-#: src/ThiefApp.vala:198
+#: src/ThiefApp.vala:211
 msgid "Library"
 msgstr "Biblioteca"
 
-#: src/ThiefApp.vala:206
+#: src/ThiefApp.vala:219
 msgid "Add Folder to Library"
 msgstr "Agregar carpeta a la biblioteca"
 
-#: src/ThiefApp.vala:441
+#: src/ThiefApp.vala:457 src/Connections/WordpressConnection.vala:167
 msgid "HTML"
 msgstr "HTML"
 
-#: src/ThiefApp.vala:442
+#: src/ThiefApp.vala:458
 msgid "PDF"
 msgstr "PDF"
 
-#: src/ThiefApp.vala:443
+#: src/ThiefApp.vala:459
 msgid "MHTML"
 msgstr "MHTML"
 
-#: src/ThiefApp.vala:444
+#: src/ThiefApp.vala:460
 msgid "Markdown"
 msgstr "Reducción"
 
-#: src/ThiefApp.vala:445
+#: src/ThiefApp.vala:461
 msgid "LaTeX"
 msgstr "Látex"
 
-#: src/ThiefApp.vala:446
+#: src/ThiefApp.vala:462
 msgid "DocX"
 msgstr "DocX"
 
-#: src/ThiefApp.vala:447
+#: src/ThiefApp.vala:463
 msgid "Fountain"
 msgstr "Fuente"
+
+#: src/ThiefApp.vala:464
+msgid "FDX"
+msgstr ""
+
+#: src/ThiefApp.vala:465
+msgid "TextPack"
+msgstr ""
 
 #. Visual Settings
 #. Arbitrary strings
@@ -331,22 +339,6 @@ msgstr ""
 "¿Trabajas con muchos enlaces? Active el modo experimental para que su rebaja "
 "sea más legible `Ctrl + Shift + M`."
 
-#: src/Controllers/FileManager.vala:39
-msgid "Stealing file contents..."
-msgstr ""
-
-#: src/Controllers/FileManager.vala:40
-msgid "This isn't plagiarism, it's a remix!"
-msgstr ""
-
-#: src/Controllers/FileManager.vala:41
-msgid "NYT Best Seller, here we come!"
-msgstr ""
-
-#: src/Controllers/FileManager.vala:43
-msgid "Importing File"
-msgstr "Importando archivo"
-
 #: src/Controllers/Dialogs.vala:98
 msgid "Add to Library"
 msgstr "Agregar a la biblioteca"
@@ -415,7 +407,7 @@ msgid "No file opened"
 msgstr "Ningún archivo abierto"
 
 #: src/Connections/ConnectionBase.vala:86
-#: src/Widgets/PublisherPreviewWindow.vala:192
+#: src/Widgets/PublisherPreviewWindow.vala:194
 #: src/Widgets/ProjectStatistics.vala:76 src/Widgets/QuickPreferences.vala:75
 msgid "Close"
 msgstr "Cerrar"
@@ -460,19 +452,21 @@ msgstr ""
 
 #: src/Connections/WriteFreelyConnection.vala:240
 #: src/Connections/GhostConnection.vala:362
-#: src/Connections/WordpressConnection.vala:219
+#: src/Connections/WordpressConnection.vala:226
 msgid "Uploading images"
 msgstr "Subiendo imágenes"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid " Published"
 msgstr " Publicado"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid "Post Published"
 msgstr "Publicación publicada"
 
@@ -519,23 +513,36 @@ msgstr ""
 msgid "New Wordpress Connection"
 msgstr "Nueva conexión de Wordpress"
 
-#: src/Connections/WordpressConnection.vala:194
+#: src/Connections/WordpressConnection.vala:162
+msgid "Draft"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:163
+#, fuzzy
+msgid "Published"
+msgstr " Publicado"
+
+#: src/Connections/WordpressConnection.vala:168
+msgid "Blocks"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:201
 msgid "Taking it to the internet!"
 msgstr ""
 
-#: src/Connections/WordpressConnection.vala:195
+#: src/Connections/WordpressConnection.vala:202
 msgid "Don't forget to share on reddit."
 msgstr ""
 
-#: src/Connections/WordpressConnection.vala:196
+#: src/Connections/WordpressConnection.vala:203
 msgid "Pressing words together..."
 msgstr ""
 
-#: src/Enrichments/Fountain.vala:53
+#: src/Enrichments/Fountain.vala:71
 msgid "Characters"
 msgstr ""
 
-#: src/Enrichments/Fountain.vala:246
+#: src/Enrichments/Fountain.vala:314
 #, fuzzy
 msgid "Fountain character"
 msgstr "Archivos fuente"
@@ -620,29 +627,29 @@ msgstr "Trabajando PDF Magic"
 msgid "Making sure your hard work looks purrfect..."
 msgstr "Asegurándose de que su arduo trabajo se vea perfecto ..."
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:136
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:136
 msgid "About ThiefMD"
 msgstr "Sobre ThiefMD"
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:134
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:134
 msgid "About"
 msgstr "Acerca de"
 
-#: src/Widgets/About.vala:43
+#: src/Widgets/About.vala:41
 msgid "Credits"
 msgstr "Créditos"
 
 #. website = ThiefProperties.URL;
-#: src/Widgets/About.vala:94
+#: src/Widgets/About.vala:88
 msgid "Feedback"
 msgstr "Realimentación"
 
 #. license_type = ThiefProperties.LICENSE_TYPE;
-#: src/Widgets/About.vala:99
+#: src/Widgets/About.vala:93
 msgid "This program comes with absolutely no warranty."
 msgstr "Este programa no tiene absolutamente ninguna garantía."
 
-#: src/Widgets/About.vala:100
+#: src/Widgets/About.vala:94
 msgid ""
 "See the <a href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU General "
 "Public License, version 3 or later</a> for details."
@@ -666,7 +673,7 @@ msgstr "Mostrar notas"
 msgid "New Sheet"
 msgstr "Hoja nueva"
 
-#: src/Widgets/Sheets.vala:283
+#: src/Widgets/Sheets.vala:324
 msgid "Select an item from the Library to open or create a new Sheet."
 msgstr ""
 
@@ -716,115 +723,115 @@ msgstr "Copiar ruta de archivo"
 msgid "Danger Zone"
 msgstr "Zona peligrosa"
 
-#: src/Widgets/Sheet.vala:397
+#: src/Widgets/Sheet.vala:396
 msgid "Move to Trash"
 msgstr "Mover a la papelera"
 
-#: src/Widgets/Editor.vala:201
+#: src/Widgets/Editor.vala:206
 msgid "Insert Datetime"
 msgstr "Insertar fecha y hora"
 
-#: src/Widgets/Editor.vala:219
+#: src/Widgets/Editor.vala:224
 msgid "Insert YAML Frontmatter"
 msgstr "Insertar Frontmatter YAML"
 
-#: src/Widgets/Library.vala:964 src/Widgets/Preferences.vala:377
+#: src/Widgets/Library.vala:1078 src/Widgets/Preferences.vala:377
 msgid "None"
 msgstr "Ninguna"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Folder"
 msgstr "Carpeta"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Reader"
 msgstr "Lector"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Love"
 msgstr "Amor"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Game"
 msgstr "Juego"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Art"
 msgstr "Arte"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Nature"
 msgstr "Naturaleza"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Food"
 msgstr "víveres"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Help"
 msgstr "Ayuda"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Cool"
 msgstr "Fresco"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Angel"
 msgstr "Ángel"
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Monkey"
 msgstr "Mono"
 
-#: src/Widgets/Library.vala:966 src/Widgets/Preferences.vala:144
+#: src/Widgets/Library.vala:1080 src/Widgets/Preferences.vala:144
 msgid "WordPress"
 msgstr "Wordpress"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Ghost"
 msgstr "Fantasma"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Write Freely"
 msgstr "Escribir libremente"
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Trash"
 msgstr "Basura"
 
-#: src/Widgets/Library.vala:1031
+#: src/Widgets/Library.vala:1145
 msgid "Export Preview"
 msgstr "Exportar vista previa"
 
-#: src/Widgets/Library.vala:1032
+#: src/Widgets/Library.vala:1146
 msgid "Writing Statistics"
 msgstr "Escribir estadísticas"
 
-#: src/Widgets/Library.vala:1036
+#: src/Widgets/Library.vala:1150
 msgid "Search "
 msgstr "Buscar "
 
-#: src/Widgets/Library.vala:1040
+#: src/Widgets/Library.vala:1154
 msgid "Open in File Manager"
 msgstr "Abrir en el Administrador de archivos"
 
-#: src/Widgets/Library.vala:1041
+#: src/Widgets/Library.vala:1155
 msgid "Create Sub-Folder"
 msgstr "Crear sub-carpeta"
 
-#: src/Widgets/Library.vala:1043
+#: src/Widgets/Library.vala:1157
 msgid "Hide from Library"
 msgstr "Ocultar de la biblioteca"
 
-#: src/Widgets/Library.vala:1045
+#: src/Widgets/Library.vala:1159
 msgid "Show Hidden Items"
 msgstr "Mostrar elementos ocultos"
 
-#: src/Widgets/Library.vala:1049
+#: src/Widgets/Library.vala:1163
 msgid "Set Project Icon"
 msgstr "Establecer icono de proyecto"
 
-#: src/Widgets/Library.vala:1054
+#: src/Widgets/Library.vala:1168
 msgid "Remove from Library"
 msgstr "Quitar de la biblioteca"
 
@@ -848,15 +855,21 @@ msgstr "Crear"
 msgid "Import"
 msgstr "Importar"
 
-#: src/Widgets/Notes.vala:60
+#: src/Widgets/Notes.vala:75
 #, fuzzy
 msgid "Sheet Notes"
 msgstr "Mostrar notas"
 
-#: src/Widgets/Notes.vala:68
+#: src/Widgets/Notes.vala:84
 #, fuzzy
 msgid "Project Notes"
 msgstr "Establecer icono de proyecto"
+
+#. Add "Open Link" to the TextView's built-in right-click menu
+#: src/Widgets/Notes.vala:273
+#, fuzzy
+msgid "Open Link"
+msgstr "Abrir documento"
 
 #: src/Widgets/Preferences.vala:77
 msgid "Current Connections"
@@ -954,7 +967,7 @@ msgstr "Número de líneas para previsualizar en la vista hojas"
 msgid "Add New Theme"
 msgstr "Agregar nuevo tema"
 
-#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:155
+#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:157
 #: src/Widgets/ProjectStatistics.vala:69
 msgid "Export"
 msgstr "Exportar"
@@ -1160,21 +1173,21 @@ msgstr "Habilitar funciones experimentales"
 msgid "Preview: "
 msgstr "Avance"
 
-#: src/Widgets/PublisherPreviewWindow.vala:67
-#: src/Widgets/PublisherPreviewWindow.vala:208
+#: src/Widgets/PublisherPreviewWindow.vala:69
+#: src/Widgets/PublisherPreviewWindow.vala:210
 #: src/Widgets/QuickPreferences.vala:99
 msgid "Publishing Preview"
 msgstr "Vista previa de publicación"
 
-#: src/Widgets/PublisherPreviewWindow.vala:157
+#: src/Widgets/PublisherPreviewWindow.vala:159
 msgid "Export Item"
 msgstr "Exportar artículo"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "File not Exported"
 msgstr "Archivo no exportado"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "ThiefMD could not export the file, please try again."
 msgstr "ThiefMD no pudo exportar el archivo, inténtelo de nuevo."
 
@@ -1353,6 +1366,9 @@ msgstr "<b> Robando el contenido del archivo ... </b>"
 #: src/Widgets/MarkdownCheatSheet.vala:58
 msgid "Heading"
 msgstr "Bóveda"
+
+#~ msgid "Importing File"
+#~ msgstr "Importando archivo"
 
 #~ msgid "_Open"
 #~ msgstr "_Abierto"

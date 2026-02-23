@@ -165,7 +165,8 @@ namespace ThiefMD {
         public bool on_delete_event () {
             editor.save ();
             ThiefApplication.close_window (this);
-            return true;
+            // Return false so GTK lets the window actually close
+            return false;
         }
 
         public bool has_fountain () {

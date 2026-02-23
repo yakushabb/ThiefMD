@@ -188,6 +188,29 @@ namespace ThiefMD {
         return check.has_suffix (".fountain") || check.has_suffix (".fou") || check.has_suffix (".spmd");
     }
 
+    public int utf8_byte_to_char_offset (string text, int byte_offset) {
+        if (byte_offset <= 0) {
+            return 0;
+        }
+
+        string prefix = text[0:byte_offset];
+        return (int) prefix.char_count ();
+    }
+
+    public string get_fountain_scene_heading_pattern () {
+        return "^(\\.(?!\\.)\\s*\\S|INT\\/EXT[\\.\\s\\/]|I\\/E[\\.\\s\\/]|INT[\\.\\s\\/]|EXT[\\.\\s\\/]|EST[\\.\\s\\/])";
+    }
+
+    public bool is_fountain_scene_heading (string line) {
+        try {
+            var scene_regex = new Regex (get_fountain_scene_heading_pattern (), RegexCompileFlags.CASELESS);
+            return scene_regex.match (line);
+        } catch (RegexError e) {
+            warning ("Could not check scene heading: %s", e.message);
+            return false;
+        }
+    }
+
     public bool match_keycode (uint keyval, uint code) {
         // GTK4: compare the translated keyval directly; callers now pass keyval
         return keyval == code;
@@ -281,6 +304,36 @@ namespace ThiefMD {
 
     public string string_or_empty_string (string? str) {
         return (str != null) ? str : "";
+    }
+
+    // Keeps split panes in a safe range so each side stays visible.
+    public int clamp_split_position (int split_position, int total_width, int min_start_width = 100, int min_end_width = 100) {
+        if (total_width <= 0) {
+            return split_position;
+        }
+
+        if (min_start_width < 0) {
+            min_start_width = 0;
+        }
+
+        if (min_end_width < 0) {
+            min_end_width = 0;
+        }
+
+        int max_start_width = total_width - min_end_width;
+        if (max_start_width < min_start_width) {
+            max_start_width = min_start_width;
+        }
+
+        if (split_position < min_start_width) {
+            return min_start_width;
+        }
+
+        if (split_position > max_start_width) {
+            return max_start_width;
+        }
+
+        return split_position;
     }
 
     public string make_title (string text) {

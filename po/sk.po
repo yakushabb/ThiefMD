@@ -2,47 +2,55 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ThiefMD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-16 19:20-0800\n"
+"POT-Creation-Date: 2026-02-22 22:29-0800\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 
-#: src/ThiefApp.vala:198
+#: src/ThiefApp.vala:211
 msgid "Library"
 msgstr "Knižnica"
 
-#: src/ThiefApp.vala:206
+#: src/ThiefApp.vala:219
 msgid "Add Folder to Library"
 msgstr "Pridať zložku do knižnice"
 
-#: src/ThiefApp.vala:441
+#: src/ThiefApp.vala:457 src/Connections/WordpressConnection.vala:167
 msgid "HTML"
 msgstr ""
 
-#: src/ThiefApp.vala:442
+#: src/ThiefApp.vala:458
 msgid "PDF"
 msgstr ""
 
-#: src/ThiefApp.vala:443
+#: src/ThiefApp.vala:459
 msgid "MHTML"
 msgstr ""
 
-#: src/ThiefApp.vala:444
+#: src/ThiefApp.vala:460
 msgid "Markdown"
 msgstr ""
 
-#: src/ThiefApp.vala:445
+#: src/ThiefApp.vala:461
 msgid "LaTeX"
 msgstr ""
 
-#: src/ThiefApp.vala:446
+#: src/ThiefApp.vala:462
 msgid "DocX"
 msgstr ""
 
-#: src/ThiefApp.vala:447
+#: src/ThiefApp.vala:463
 msgid "Fountain"
+msgstr ""
+
+#: src/ThiefApp.vala:464
+msgid "FDX"
+msgstr ""
+
+#: src/ThiefApp.vala:465
+msgid "TextPack"
 msgstr ""
 
 #. Visual Settings
@@ -308,22 +316,6 @@ msgid ""
 "more readable `Ctrl+Shift+M`."
 msgstr ""
 
-#: src/Controllers/FileManager.vala:39
-msgid "Stealing file contents..."
-msgstr ""
-
-#: src/Controllers/FileManager.vala:40
-msgid "This isn't plagiarism, it's a remix!"
-msgstr "Toto nieje plagiarizmus, je to remix!"
-
-#: src/Controllers/FileManager.vala:41
-msgid "NYT Best Seller, here we come!"
-msgstr ""
-
-#: src/Controllers/FileManager.vala:43
-msgid "Importing File"
-msgstr "Importovanie súboru"
-
 #: src/Controllers/Dialogs.vala:98
 msgid "Add to Library"
 msgstr "Pridať do knižnice"
@@ -392,7 +384,7 @@ msgid "No file opened"
 msgstr "Žiadný súbor nieje otvorený"
 
 #: src/Connections/ConnectionBase.vala:86
-#: src/Widgets/PublisherPreviewWindow.vala:192
+#: src/Widgets/PublisherPreviewWindow.vala:194
 #: src/Widgets/ProjectStatistics.vala:76 src/Widgets/QuickPreferences.vala:75
 msgid "Close"
 msgstr "Zavrieť"
@@ -437,19 +429,21 @@ msgstr ""
 
 #: src/Connections/WriteFreelyConnection.vala:240
 #: src/Connections/GhostConnection.vala:362
-#: src/Connections/WordpressConnection.vala:219
+#: src/Connections/WordpressConnection.vala:226
 msgid "Uploading images"
 msgstr "Nahrávanie obrázkov"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid " Published"
 msgstr " Zverejnené"
 
 #: src/Connections/WriteFreelyConnection.vala:320
 #: src/Connections/GhostConnection.vala:453
-#: src/Connections/WordpressConnection.vala:299
+#: src/Connections/WordpressConnection.vala:307
+#: src/Connections/WordpressConnection.vala:335
 msgid "Post Published"
 msgstr "Príspevok zverejnený"
 
@@ -496,23 +490,36 @@ msgstr ""
 msgid "New Wordpress Connection"
 msgstr "Nové prepojenie pre WordPress"
 
-#: src/Connections/WordpressConnection.vala:194
+#: src/Connections/WordpressConnection.vala:162
+msgid "Draft"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:163
+#, fuzzy
+msgid "Published"
+msgstr " Zverejnené"
+
+#: src/Connections/WordpressConnection.vala:168
+msgid "Blocks"
+msgstr ""
+
+#: src/Connections/WordpressConnection.vala:201
 msgid "Taking it to the internet!"
 msgstr ""
 
-#: src/Connections/WordpressConnection.vala:195
+#: src/Connections/WordpressConnection.vala:202
 msgid "Don't forget to share on reddit."
 msgstr "Nezabudnite zdieľať na reddite."
 
-#: src/Connections/WordpressConnection.vala:196
+#: src/Connections/WordpressConnection.vala:203
 msgid "Pressing words together..."
 msgstr ""
 
-#: src/Enrichments/Fountain.vala:53
+#: src/Enrichments/Fountain.vala:71
 msgid "Characters"
 msgstr "Znaky"
 
-#: src/Enrichments/Fountain.vala:246
+#: src/Enrichments/Fountain.vala:314
 msgid "Fountain character"
 msgstr ""
 
@@ -596,29 +603,29 @@ msgstr ""
 msgid "Making sure your hard work looks purrfect..."
 msgstr ""
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:136
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:136
 msgid "About ThiefMD"
 msgstr "O ThiefMD"
 
-#: src/Widgets/About.vala:42 src/Widgets/QuickPreferences.vala:134
+#: src/Widgets/About.vala:40 src/Widgets/QuickPreferences.vala:134
 msgid "About"
 msgstr "O"
 
-#: src/Widgets/About.vala:43
+#: src/Widgets/About.vala:41
 msgid "Credits"
 msgstr "Autori"
 
 #. website = ThiefProperties.URL;
-#: src/Widgets/About.vala:94
+#: src/Widgets/About.vala:88
 msgid "Feedback"
 msgstr "Odozva"
 
 #. license_type = ThiefProperties.LICENSE_TYPE;
-#: src/Widgets/About.vala:99
+#: src/Widgets/About.vala:93
 msgid "This program comes with absolutely no warranty."
 msgstr ""
 
-#: src/Widgets/About.vala:100
+#: src/Widgets/About.vala:94
 msgid ""
 "See the <a href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU General "
 "Public License, version 3 or later</a> for details."
@@ -640,7 +647,7 @@ msgstr "Ukázať poznámky"
 msgid "New Sheet"
 msgstr "Nový list"
 
-#: src/Widgets/Sheets.vala:283
+#: src/Widgets/Sheets.vala:324
 msgid "Select an item from the Library to open or create a new Sheet."
 msgstr ""
 
@@ -690,115 +697,115 @@ msgstr "Skopírovať cestu k súboru"
 msgid "Danger Zone"
 msgstr "Nebezpečná oblasť"
 
-#: src/Widgets/Sheet.vala:397
+#: src/Widgets/Sheet.vala:396
 msgid "Move to Trash"
 msgstr "Presunúť do koša"
 
-#: src/Widgets/Editor.vala:201
+#: src/Widgets/Editor.vala:206
 msgid "Insert Datetime"
 msgstr "Vložiť dátum a čas"
 
-#: src/Widgets/Editor.vala:219
+#: src/Widgets/Editor.vala:224
 msgid "Insert YAML Frontmatter"
 msgstr ""
 
-#: src/Widgets/Library.vala:964 src/Widgets/Preferences.vala:377
+#: src/Widgets/Library.vala:1078 src/Widgets/Preferences.vala:377
 msgid "None"
 msgstr "Žiaden"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Folder"
 msgstr "Zložka"
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Reader"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Love"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Game"
 msgstr ""
 
-#: src/Widgets/Library.vala:964
+#: src/Widgets/Library.vala:1078
 msgid "Art"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Nature"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Food"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Help"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Cool"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Angel"
 msgstr ""
 
-#: src/Widgets/Library.vala:965
+#: src/Widgets/Library.vala:1079
 msgid "Monkey"
 msgstr ""
 
-#: src/Widgets/Library.vala:966 src/Widgets/Preferences.vala:144
+#: src/Widgets/Library.vala:1080 src/Widgets/Preferences.vala:144
 msgid "WordPress"
 msgstr ""
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Ghost"
 msgstr ""
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Write Freely"
 msgstr ""
 
-#: src/Widgets/Library.vala:966
+#: src/Widgets/Library.vala:1080
 msgid "Trash"
 msgstr "Kôš"
 
-#: src/Widgets/Library.vala:1031
+#: src/Widgets/Library.vala:1145
 msgid "Export Preview"
 msgstr "Náhľad exportu"
 
-#: src/Widgets/Library.vala:1032
+#: src/Widgets/Library.vala:1146
 msgid "Writing Statistics"
 msgstr "Štatistiky písania"
 
-#: src/Widgets/Library.vala:1036
+#: src/Widgets/Library.vala:1150
 msgid "Search "
 msgstr "Hľadať "
 
-#: src/Widgets/Library.vala:1040
+#: src/Widgets/Library.vala:1154
 msgid "Open in File Manager"
 msgstr "Otvoriť v správcovi súborov"
 
-#: src/Widgets/Library.vala:1041
+#: src/Widgets/Library.vala:1155
 msgid "Create Sub-Folder"
 msgstr "Vytvoriť podzložku"
 
-#: src/Widgets/Library.vala:1043
+#: src/Widgets/Library.vala:1157
 msgid "Hide from Library"
 msgstr "Skryť z knižnice"
 
-#: src/Widgets/Library.vala:1045
+#: src/Widgets/Library.vala:1159
 msgid "Show Hidden Items"
 msgstr "Ukázať skryté súbory"
 
-#: src/Widgets/Library.vala:1049
+#: src/Widgets/Library.vala:1163
 msgid "Set Project Icon"
 msgstr ""
 
-#: src/Widgets/Library.vala:1054
+#: src/Widgets/Library.vala:1168
 msgid "Remove from Library"
 msgstr "Odstrániť z knižnice"
 
@@ -822,15 +829,21 @@ msgstr "Vytvoriť"
 msgid "Import"
 msgstr "Importovať"
 
-#: src/Widgets/Notes.vala:60
+#: src/Widgets/Notes.vala:75
 #, fuzzy
 msgid "Sheet Notes"
 msgstr "Ukázať poznámky"
 
-#: src/Widgets/Notes.vala:68
+#: src/Widgets/Notes.vala:84
 #, fuzzy
 msgid "Project Notes"
 msgstr "Ukázať poznámky"
+
+#. Add "Open Link" to the TextView's built-in right-click menu
+#: src/Widgets/Notes.vala:273
+#, fuzzy
+msgid "Open Link"
+msgstr "Otvoriť súbor"
 
 #: src/Widgets/Preferences.vala:77
 msgid "Current Connections"
@@ -926,7 +939,7 @@ msgstr "Počet riadkov v náhľade, pri listovom zobrazení"
 msgid "Add New Theme"
 msgstr "Pridať novú tému"
 
-#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:155
+#: src/Widgets/Preferences.vala:468 src/Widgets/PublisherPreviewWindow.vala:157
 #: src/Widgets/ProjectStatistics.vala:69
 msgid "Export"
 msgstr "Exportovať"
@@ -1130,21 +1143,21 @@ msgstr ""
 msgid "Preview: "
 msgstr "Náhľad"
 
-#: src/Widgets/PublisherPreviewWindow.vala:67
-#: src/Widgets/PublisherPreviewWindow.vala:208
+#: src/Widgets/PublisherPreviewWindow.vala:69
+#: src/Widgets/PublisherPreviewWindow.vala:210
 #: src/Widgets/QuickPreferences.vala:99
 msgid "Publishing Preview"
 msgstr "Náhľad publikácie"
 
-#: src/Widgets/PublisherPreviewWindow.vala:157
+#: src/Widgets/PublisherPreviewWindow.vala:159
 msgid "Export Item"
 msgstr "Exportovať položku"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "File not Exported"
 msgstr "Súbor nevyexportovaný"
 
-#: src/Widgets/PublisherPreviewWindow.vala:191
+#: src/Widgets/PublisherPreviewWindow.vala:193
 msgid "ThiefMD could not export the file, please try again."
 msgstr "ThiefMD nemohol exportovať súbor, prosím skúste to znova"
 
@@ -1319,6 +1332,12 @@ msgstr ""
 #: src/Widgets/MarkdownCheatSheet.vala:58
 msgid "Heading"
 msgstr "Nadpis"
+
+#~ msgid "This isn't plagiarism, it's a remix!"
+#~ msgstr "Toto nieje plagiarizmus, je to remix!"
+
+#~ msgid "Importing File"
+#~ msgstr "Importovanie súboru"
 
 #~ msgid "_Open"
 #~ msgstr "_Otvoriť"

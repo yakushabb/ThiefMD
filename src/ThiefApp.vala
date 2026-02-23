@@ -55,6 +55,7 @@ namespace ThiefMD {
         private bool suppress_position_save = false;
         private int last_library_position = -1;
         private int last_main_position = -1;
+        private const int MIN_EDITOR_WIDTH = 100;
 
         public void set_library_split_position_silent (int pos) {
             suppress_position_save = true;
@@ -64,8 +65,20 @@ namespace ThiefMD {
 
         public void set_main_position_silent (int pos) {
             suppress_position_save = true;
-            main_content.set_position (pos);
+            main_content.set_position (clamp_main_position_for_editor (pos));
             suppress_position_save = false;
+        }
+
+        private int clamp_main_position_for_editor (int pos) {
+            int total_width = main_content.get_allocated_width ();
+            return clamp_split_position (pos, total_width, 100, MIN_EDITOR_WIDTH);
+        }
+
+        private void ensure_editor_visible () {
+            int clamped_position = clamp_main_position_for_editor (main_content.position);
+            if (clamped_position != main_content.position) {
+                set_main_position_silent (clamped_position);
+            }
         }
 
         public ThiefApp (Gtk.Application app) {
@@ -325,6 +338,9 @@ namespace ThiefMD {
             main_content.set_end_child (editor_widgets);
             set_main_position_silent (settings.view_library_width + settings.view_sheets_width);
             last_main_position = main_content.position;
+            main_content.notify["max-position"].connect (() => {
+                ensure_editor_visible ();
+            });
             main_content.notify["position"].connect (() => {
                 if (!ready) {
                     return;
@@ -344,9 +360,9 @@ namespace ThiefMD {
                 
                 updating_sizes = true;
                 var s = AppSettings.get_default ();
-                int left_width = current_pos;
-                if (left_width < 100) {
-                    left_width = 100;
+                int left_width = clamp_main_position_for_editor (current_pos);
+                if (left_width != current_pos) {
+                    set_main_position_silent (left_width);
                 }
 
                 int lib_width = library_split.position;
@@ -370,7 +386,7 @@ namespace ThiefMD {
 
                 s.view_library_width = lib_width;
                 s.view_sheets_width = sheets_width;
-                last_main_position = current_pos;
+                last_main_position = left_width;
                 updating_sizes = false;
             });
             main_window_horizon_box.append (main_content);
@@ -445,12 +461,13 @@ namespace ThiefMD {
             exporters.register (_("LaTeX"), new Exporters.ExportLatex ());
             exporters.register (_("DocX"), new Exporters.ExportDocx ());
             exporters.register (_("Fountain"), new Exporters.ExportFountain ());
+            exporters.register (_("FDX"), new Exporters.ExportFdx ());
+            exporters.register (_("TextPack"), new Exporters.ExportTextpack ());
 
             // Load connections
             connections = new Gee.ConcurrentList<Connections.ConnectionBase> ();
 
             // Restore preview view
-            UI.show_view ();
             UI.set_sheets (start_sheet);
             library.expand_all ();
             library.set_active ();
@@ -488,6 +505,7 @@ namespace ThiefMD {
 
             // Go go go!
             ready = true;
+            UI.show_view ();
             show ();
         }
     }

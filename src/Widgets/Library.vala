@@ -184,14 +184,11 @@ namespace ThiefMD.Widgets {
             });
             box.add_controller (drag_source);
 
-            // Drop target to accept sheets being moved into folders
-            var drop_target = new Gtk.DropTarget (typeof (string), Gdk.DragAction.MOVE);
+            // Drop target to accept sheets being moved or external files imported into folders
+            var drop_target = new Gtk.DropTarget (Type.INVALID, Gdk.DragAction.COPY | Gdk.DragAction.MOVE);
+            drop_target.set_gtypes ({ typeof (Gdk.FileList), typeof (File), typeof (string) });
             drop_target.drop.connect ((value, x, y) => {
-                string? source_path = (string?) value;
-                if (source_path == null) {
-                    return false;
-                }
-                return handle_library_drop (source_path, node);
+                return handle_library_drop_value (value, node);
             });
             box.add_controller (drop_target);
 
@@ -222,6 +219,123 @@ namespace ThiefMD.Widgets {
                     box.remove_css_class ("library-drop-hover");
                 }
             }
+        }
+
+        private bool handle_library_drop_value (Value value, LibNode target_node) {
+            if (value.type () == typeof (Gdk.FileList)) {
+                var dropped_files = (Gdk.FileList) value;
+                bool handled_any = false;
+                foreach (var dropped_file in dropped_files.get_files ()) {
+                    string? path = dropped_file.get_path ();
+                    if (path != null && path.chomp () != "" && handle_path_drop_for_target (path, target_node)) {
+                        handled_any = true;
+                    }
+                }
+                return handled_any;
+            }
+
+            if (value.type () == typeof (File)) {
+                var dropped_file = (File) value;
+                string? path = dropped_file.get_path ();
+                if (path != null && path.chomp () != "") {
+                    return handle_path_drop_for_target (path, target_node);
+                }
+                return false;
+            }
+
+            if (value.type () == typeof (string)) {
+                string dropped_data = (string) value;
+                if (dropped_data == null || dropped_data.chomp () == "") {
+                    return false;
+                }
+
+                bool handled_any = false;
+                string cleaned = dropped_data.replace ("\r", "");
+                string[] lines = cleaned.split ("\n");
+                if (lines.length <= 1) {
+                    string? single_path = extract_drop_path (dropped_data);
+                    if (single_path != null) {
+                        return handle_path_drop_for_target (single_path, target_node);
+                    }
+                    return false;
+                }
+
+                foreach (var line in lines) {
+                    if (line == null) {
+                        continue;
+                    }
+
+                    string trimmed = line.chomp ();
+                    if (trimmed == "" || trimmed.has_prefix ("#")) {
+                        continue;
+                    }
+
+                    string? drop_path = extract_drop_path (trimmed);
+                    if (drop_path != null && handle_path_drop_for_target (drop_path, target_node)) {
+                        handled_any = true;
+                    }
+                }
+
+                return handled_any;
+            }
+
+            return false;
+        }
+
+        private string? extract_drop_path (string drop_text) {
+            string trimmed = drop_text.chomp ();
+            if (trimmed == "") {
+                return null;
+            }
+
+            if (trimmed.has_prefix ("file://") || trimmed.has_prefix ("file:")) {
+                File file_from_uri = File.new_for_uri (trimmed);
+                string? uri_path = file_from_uri.get_path ();
+                if (uri_path != null && uri_path.chomp () != "") {
+                    return uri_path;
+                }
+                return null;
+            }
+
+            if (FileUtils.test (trimmed, FileTest.EXISTS)) {
+                return trimmed;
+            }
+
+            return null;
+        }
+
+        private bool handle_path_drop_for_target (string path, LibNode target_node) {
+            if (path == null || path.chomp () == "") {
+                return false;
+            }
+
+            if (file_in_library (path)) {
+                return handle_library_drop (path, target_node);
+            }
+
+            return import_drop_path_into_target (path, target_node);
+        }
+
+        private bool import_drop_path_into_target (string source_path, LibNode target_node) {
+            if (!FileUtils.test (source_path, FileTest.EXISTS) || FileUtils.test (source_path, FileTest.IS_DIR)) {
+                return false;
+            }
+
+            int dot = source_path.last_index_of (".");
+            if (dot < 0 || dot >= source_path.length - 1) {
+                return false;
+            }
+
+            string ext = source_path.substring (dot + 1).down ();
+            string supported_imports = ThiefProperties.SUPPORTED_IMPORT_FILES;
+            string with_terminator = supported_imports.has_suffix (";") ? supported_imports : supported_imports + ";";
+            string match_ext = ext.length >= 3 ? "*." + ext + ";" : ext;
+            if (with_terminator.index_of (match_ext) < 0) {
+                return false;
+            }
+
+            FileManager.import_file (source_path, target_node.sheets);
+            return true;
         }
 
         private bool handle_library_drop (string source_path, LibNode target_node) {
@@ -1078,6 +1192,7 @@ namespace ThiefMD.Widgets {
                 }
                 string preview_markdown = build_novel (selection, settings.export_include_metadata_file);
                 PublisherPreviewWindow ppw = new PublisherPreviewWindow (preview_markdown, render_fountain (selection));
+                ppw.source_path = selection.path;
                 ppw.show ();
             });
             _context_actions.add_action (export_preview);

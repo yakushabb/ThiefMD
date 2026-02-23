@@ -391,8 +391,7 @@ namespace ThiefMD.Widgets {
             root.append_section (null, actions_section);
 
             var danger_section = new GLib.Menu ();
-            var danger_item = new GLib.MenuItem (_("Danger Zone"), null);
-            danger_item.set_attribute_value ("enabled", new GLib.Variant.boolean (false));
+            var danger_item = new GLib.MenuItem (_("Danger Zone"), "sheet.danger_zone");
             danger_section.append_item (danger_item);
             danger_section.append (_("Move to Trash"), "sheet.move_to_trash");
             root.append_section (null, danger_section);
@@ -477,6 +476,11 @@ namespace ThiefMD.Widgets {
                 }
             });
             _context_actions.add_action (move_to_trash_action);
+
+            // Disabled action so "Danger Zone" appears greyed out in the menu
+            var danger_zone_action = new GLib.SimpleAction ("danger_zone", null);
+            danger_zone_action.set_enabled (false);
+            _context_actions.add_action (danger_zone_action);
         }
 
         public static bool areEqual (Sheet a, Sheet b) {

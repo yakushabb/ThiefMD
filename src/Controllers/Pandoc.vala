@@ -380,7 +380,7 @@ namespace ThiefMD.Controllers.Pandoc {
             Regex url_search = new Regex ("\\((.+?)\\)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
             Regex src_search = new Regex ("src=['\"](.+?)['\"]", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
             Regex css_url_search = new Regex ("url\\(['\"]?(.+?)['\"]?\\)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
-            Regex cover_image_search = new Regex ("(cover-image|coverimage|feature_image|featureimage|featured_image|csl|featuredimage|bibliography):\\s*['\"]?(.+?)['\"]?\\s*$", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+            Regex cover_image_search = new Regex ("(cover|cover-image|coverimage|cover_image|feature_image|featureimage|featured_image|feature-image|featured-image|featuredimage|image|thumbnail|thumb|banner|teaser|hero|poster|csl|bibliography):\\s*['\"]?(.+?)['\"]?\\s*$", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
             Regex reference_image_search = new Regex("(\\[[^\\]]+\\]):\\s+(.*?)$", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
 
             processed_mk = url_search.replace_eval (
@@ -467,7 +467,14 @@ namespace ThiefMD.Controllers.Pandoc {
 
     private bool find_file_to_upload (string url, string path, out string absolute_path) {
         string result = "";
+        string decoded_url = url;
+        string? unescaped = Uri.unescape_string (url, null);
+        if (unescaped != null && unescaped != "") {
+            decoded_url = unescaped;
+        }
+
         string file = Path.build_filename (".", url);
+        string decoded_file = Path.build_filename (".", decoded_url);
         if (url.index_of_char (':') != -1) {
             result = url;
         } else if (url.index_of_char ('.') == -1) {
@@ -475,8 +482,14 @@ namespace ThiefMD.Controllers.Pandoc {
         } else if (FileUtils.test (url, FileTest.EXISTS)) {
             File res_file = File.new_for_path (url);
             result = res_file.get_path ();
+        } else if (decoded_url != url && FileUtils.test (decoded_url, FileTest.EXISTS)) {
+            File res_file = File.new_for_path (decoded_url);
+            result = res_file.get_path ();
         } else if (FileUtils.test (file, FileTest.EXISTS)) {
             File res_file = File.new_for_path (file);
+            result = res_file.get_path ();
+        } else if (decoded_url != url && FileUtils.test (decoded_file, FileTest.EXISTS)) {
+            File res_file = File.new_for_path (decoded_file);
             result = res_file.get_path ();
         } else {
             string search_path = "";
@@ -495,12 +508,30 @@ namespace ThiefMD.Controllers.Pandoc {
                     break;
                 }
 
+                if (decoded_url != url) {
+                    decoded_file = Path.build_filename (search_path, decoded_url);
+                    if (FileUtils.test (decoded_file, FileTest.EXISTS)) {
+                        File tmp = File.new_for_path (decoded_file);
+                        result = tmp.get_path ();
+                        break;
+                    }
+                }
+
                 // Check in static folder
                 file = Path.build_filename (search_path, "static", url);
                 if (FileUtils.test (file, FileTest.EXISTS)) {
                     File tmp = File.new_for_path (file);
                     result = tmp.get_path ();
                     break;
+                }
+
+                if (decoded_url != url) {
+                    decoded_file = Path.build_filename (search_path, "static", decoded_url);
+                    if (FileUtils.test (decoded_file, FileTest.EXISTS)) {
+                        File tmp = File.new_for_path (decoded_file);
+                        result = tmp.get_path ();
+                        break;
+                    }
                 }
 
                 idx = search_path.last_index_of_char (Path.DIR_SEPARATOR);

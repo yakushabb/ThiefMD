@@ -62,13 +62,19 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="0.3.1" date="2026-02-16" urgency="low">
+    <release version="0.3.1" date="2026-02-22" urgency="low">
       <description>
         <p>From experimental to normal, and some new experiments.</p>
         <ul>
           <li>Image previews - Hover over an image tag, and we'll show what it looks like.</li>
+          <li>Keyboard Editing Jumps - `Ctrl+[` and `Ctrl+]` will jump between headings and scenes.</li>
+          <li>WordPress Block Export - MinePress meet WordCraft.</li>
+          <li>Import and Export FDX Files - This is more of a best effort for now.</li>
+          <li>Import and Export TextPacks (https://textbundle.org/) - Bring your work in or take your work out to another editor--images and all. Also works for Highland files.</li>
+          <li>Import Bear Backups - Come in from Bear, but you can't get out...</li>
           <li>libmarkdown3 (Discount 3) - More markdown, better support. We're living in the future today.</li>
           <li>About Dialog Fixes - Thanks sevonj!</li>
+          <li>Web Links in the notes can be `Ctrl+Clicked` to open.</li>
           <li>Bug fixes.</li>
         </ul>
       </description>
