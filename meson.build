@@ -166,6 +166,7 @@ executable(
     'src/writeas/src/Writeas3.vala',
     'src/ghost/src/Ghost3.vala',
     'src/wordpress/src/Wordpress3.vala',
+    'src/wordpress/src/Markdown.vala',
     'src/medium/src/Medium3.vala',
     'src/forem/src/Forem3.vala',
     'src/hashnode/src/Hashnode3.vala',

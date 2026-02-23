@@ -306,6 +306,36 @@ namespace ThiefMD {
         return (str != null) ? str : "";
     }
 
+    // Keeps split panes in a safe range so each side stays visible.
+    public int clamp_split_position (int split_position, int total_width, int min_start_width = 100, int min_end_width = 100) {
+        if (total_width <= 0) {
+            return split_position;
+        }
+
+        if (min_start_width < 0) {
+            min_start_width = 0;
+        }
+
+        if (min_end_width < 0) {
+            min_end_width = 0;
+        }
+
+        int max_start_width = total_width - min_end_width;
+        if (max_start_width < min_start_width) {
+            max_start_width = min_start_width;
+        }
+
+        if (split_position < min_start_width) {
+            return min_start_width;
+        }
+
+        if (split_position > max_start_width) {
+            return max_start_width;
+        }
+
+        return split_position;
+    }
+
     public string make_title (string text) {
         string current_title = text.replace ("_", " ");
         current_title = current_title.replace ("-", " ");

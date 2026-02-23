@@ -7,6 +7,7 @@ public class HelpersTests {
         test_get_some_words ();
         test_csv_to_md ();
         test_string_or_empty_string ();
+        test_clamp_split_position ();
     }
 
     private void test_exportable_file () {
@@ -106,6 +107,25 @@ public class HelpersTests {
             
             // Test with whitespace
             assert (string_or_empty_string ("   ") == "   ");
+        });
+    }
+
+    private void test_clamp_split_position () {
+        Test.add_func ("/thiefmd/clamp_split_position", () => {
+            // In range should stay as-is
+            assert (clamp_split_position (250, 800, 100, 100) == 250);
+
+            // Left side should never be too small
+            assert (clamp_split_position (10, 800, 100, 100) == 100);
+
+            // Right side (editor) should never be fully covered
+            assert (clamp_split_position (780, 800, 100, 100) == 700);
+
+            // If layout width is unknown, keep requested position
+            assert (clamp_split_position (780, 0, 100, 100) == 780);
+
+            // If minimums exceed total width, prefer start minimum
+            assert (clamp_split_position (50, 120, 100, 100) == 100);
         });
     }
 }
